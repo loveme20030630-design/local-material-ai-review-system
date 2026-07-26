@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>匯入教材</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #d9e0ea;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --shadow: 0 8px 24px rgba(15,23,42,.06);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    .hero, .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 { margin: 12px 0 10px; font-size: 28px; }
+    .hero p { margin: 0; color: var(--muted); line-height: 1.7; }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+    }
+
+    input:disabled, select:disabled {
+      opacity: .7;
+      background: #f3f4f6;
+      cursor: not-allowed;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: #93c5fd;
+      background: #f8fbff;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .info {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fafcff;
+      margin-top: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .file-list {
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      background: #fafcff;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: pre-wrap;
+      max-height: 220px;
+      overflow: auto;
+    }
+
+    .selected-file-list {
+      display: grid;
+      gap: 8px;
+      white-space: normal;
+    }
+
+    .selected-file-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .selected-file-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .selected-file-meta {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .selected-file-name {
+      color: var(--text);
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .selected-file-size {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .remove-file-btn {
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border-radius: 999px;
+      border-color: #fecaca;
+      background: #fff5f5;
+      color: #b91c1c;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .remove-file-btn:hover:not(:disabled) {
+      border-color: #fca5a5;
+      background: #fee2e2;
+    }
+
+    .clear-selected-btn {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <button id="backBtn" type="button">回到 Launcher</button>
+      <h1>匯入教材</h1>
+      <p>建立科目資料夾，選擇 ppt/pdf 格式，並上傳教材檔案。上傳完成後再前往前處理。</p>
+    </section>
+
+    <section class="panel">
+      <div class="field">
+        <label for="existingFolderSelect">現有教材</label>
+        <select id="existingFolderSelect">
+          <option value="">不使用現有教材</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="folderNameInput">新教材名稱</label>
+        <input id="folderNameInput" placeholder="例如：MCU 或 image_processing" />
+      </div>
+
+      <div class="info" id="folderModeInfo">目前可手動輸入新教材名稱，或選擇現有教材。</div>
+
+      <div class="field">
+        <label for="dataTypeSelect">格式</label>
+        <select id="dataTypeSelect">
+          <option value="ppt">ppt</option>
+          <option value="pdf">pdf</option>
+        </select>
+      </div>
+
+
+      <div class="field">
+        <label>目前已有檔案</label>
+        <div class="file-list" id="existingFileList">尚未讀取。</div>
+      </div>
+
+      <div class="field">
+        <label for="fileInput">教材檔案</label>
+        <input id="fileInput" type="file" multiple />
+      </div>
+
+      <div class="field">
+        <label for="folderInput">教材資料夾
+        </label>
+        <input id="folderInput" type="file" webkitdirectory directory multiple />
+      </div>
+
+      <div class="field">
+        <label>本次上傳檔案</label>
+        <div class="file-list" id="fileList">尚未選擇檔案。</div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="uploadBtn" type="button">上傳</button>
+        <button id="toPreprocessBtn" type="button">前往前處理</button>
+      </div>
+
+      <div class="info" id="output">尚未上傳。</div>
+    </section>
+  </div>
+
+  <script>
+    const API_BASE = `${window.location.protocol}//${window.location.hostname}:8000`;
+
+    const backBtn = document.getElementById("backBtn");
+    const existingFolderSelect = document.getElementById("existingFolderSelect");
+    const folderNameInput = document.getElementById("folderNameInput");
+    const folderModeInfo = document.getElementById("folderModeInfo");
+    const dataTypeSelect = document.getElementById("dataTypeSelect");
+    const existingFileList = document.getElementById("existingFileList");
+    const fileInput = document.getElementById("fileInput");
+    const folderInput = document.getElementById("folderInput");
+    const fileList = document.getElementById("fileList");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const toPreprocessBtn = document.getElementById("toPreprocessBtn");
+    const output = document.getElementById("output");
+
+    let selectedUploadFiles = [];
+
+    async function boot() {
+      bindEvents();
+      await loadExistingFolders();
+      syncFolderMode();
+    }
+
+    function bindEvents() {
+      backBtn.addEventListener("click", () => {
+        window.location.href = "launcher.html";
+      });
+
+      toPreprocessBtn.addEventListener("click", () => {
+        const folderName = getResolvedFolderName();
+        const q = new URLSearchParams({
+          folder_name: folderName,
+          data_type: dataTypeSelect.value,
+        });
+        window.location.href = `preprocess.html?${q.toString()}`;
+      });
+
+      existingFolderSelect.addEventListener("change", async () => {
+        syncFolderMode();
+        await loadExistingFiles();
+      });
+
+      folderNameInput.addEventListener("input", () => {
+        if (folderNameInput.value.trim()) {
+          existingFolderSelect.value = "";
+        }
+        syncFolderMode();
+      });
+
+      dataTypeSelect.addEventListener("change", loadExistingFiles);
+      fileInput.addEventListener("change", () => addSelectedFiles(fileInput));
+      folderInput.addEventListener("change", () => addSelectedFiles(folderInput));
+      uploadBtn.addEventListener("click", uploadFiles);
+    }
+
+    function getResolvedFolderName() {
+      const selected = existingFolderSelect.value.trim();
+      if (selected) return selected;
+      return folderNameInput.value.trim();
+    }
+
+    function getUploadFiles() {
+      return selectedUploadFiles;
+    }
+
+    function getFileKey(file) {
+      return [
+        file.webkitRelativePath || file.name,
+        file.size,
+        file.lastModified,
+      ].join("::");
+    }
+
+    function addSelectedFiles(inputEl) {
+      const incomingFiles = Array.from(inputEl.files || []);
+      const seenKeys = new Set(selectedUploadFiles.map(getFileKey));
+
+      for (const file of incomingFiles) {
+        const key = getFileKey(file);
+        if (!seenKeys.has(key)) {
+          selectedUploadFiles.push(file);
+          seenKeys.add(key);
+        }
+      }
+
+      // 清空 input 值，才可以再次選到同一個檔案時仍觸發 change。
+      inputEl.value = "";
+      renderSelectedFiles();
+    }
+
+    function removeSelectedFile(index) {
+      selectedUploadFiles.splice(index, 1);
+      renderSelectedFiles();
+    }
+
+    function clearSelectedFiles() {
+      selectedUploadFiles = [];
+      fileInput.value = "";
+      folderInput.value = "";
+      renderSelectedFiles();
+    }
+
+    function formatFileSize(bytes) {
+      if (!Number.isFinite(bytes)) return "未知大小";
+      if (bytes < 1024) return `${bytes} bytes`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+    }
+
+    function renderSelectedFiles() {
+      const files = getUploadFiles();
+
+      if (!files.length) {
+        fileList.classList.remove("selected-file-list");
+        fileList.textContent = "尚未選擇檔案。";
+        return;
+      }
+
+      fileList.classList.add("selected-file-list");
+      fileList.innerHTML = `
+        <div class="selected-file-head">
+          <span>已選擇 ${files.length} 個檔案</span>
+          <button class="clear-selected-btn" id="clearSelectedFilesBtn" type="button">全部清除</button>
+        </div>
+        ${files.map((file, index) => {
+          const displayName = file.webkitRelativePath || file.name;
+          return `
+            <div class="selected-file-row">
+              <div class="selected-file-meta">
+                <div class="selected-file-name">${escapeHtml(displayName)}</div>
+                <div class="selected-file-size">${formatFileSize(file.size)}</div>
+              </div>
+              <button class="remove-file-btn" type="button" aria-label="移除 ${escapeHtml(displayName)}" data-remove-index="${index}">×</button>
+            </div>
+          `;
+        }).join("")}
+      `;
+
+      fileList.querySelectorAll("[data-remove-index]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          removeSelectedFile(Number(btn.dataset.removeIndex));
+        });
+      });
+
+      document.getElementById("clearSelectedFilesBtn").addEventListener("click", clearSelectedFiles);
+    }
+
+    async function loadExistingFolders() {
+      try {
+        const resp = await fetch(`${API_BASE}/api/upload_existing_folders`);
+        const data = await resp.json();
+        const folders = Array.isArray(data.folders) ? data.folders : [];
+
+        existingFolderSelect.innerHTML = `<option value="">不使用現有教材</option>` +
+          folders.map(item => {
+            const types = Array.isArray(item.available_types) && item.available_types.length
+              ? ` (${item.available_types.join("/")})`
+              : "";
+            return `<option value="${escapeHtml(item.folder_name)}">${escapeHtml(item.folder_name + types)}</option>`;
+          }).join("");
+      } catch (err) {
+        existingFolderSelect.innerHTML = `<option value="">不使用現有資料夾</option>`;
+      }
+    }
+
+    function syncFolderMode() {
+      const selectedExisting = existingFolderSelect.value.trim();
+
+      if (selectedExisting) {
+        folderNameInput.value = "";
+        folderNameInput.disabled = true;
+        folderModeInfo.textContent = `目前使用現有資料夾：${selectedExisting}。已停用新資料夾名稱輸入。`;
+      } else {
+        folderNameInput.disabled = false;
+        folderModeInfo.textContent = "目前可手動輸入新教材名稱，或選擇現有教材。";
+      }
+    }
+
+    async function loadExistingFiles() {
+      const folderName = getResolvedFolderName();
+      const dataType = dataTypeSelect.value;
+
+      if (!folderName) {
+        existingFileList.textContent = "請先輸入新教材名稱，或選擇現有教材。";
+        return;
+      }
+
+      existingFileList.textContent = "讀取中...";
+
+      try {
+        const qs = new URLSearchParams({
+          folder_name: folderName,
+          data_type: dataType,
+        });
+
+        const resp = await fetch(`${API_BASE}/api/upload_existing_files?${qs.toString()}`);
+        const data = await resp.json();
+        const files = Array.isArray(data.files) ? data.files : [];
+
+        existingFileList.textContent = files.length
+          ? files.map(f => `${f.name} (${f.size} bytes)`).join("\n")
+          : "目前沒有檔案。";
+      } catch (err) {
+        existingFileList.textContent = `讀取失敗：${err.message || err}`;
+      }
+    }
+
+    async function uploadFiles() {
+      const folderName = getResolvedFolderName();
+      const dataType = dataTypeSelect.value;
+      const files = getUploadFiles();
+
+      if (!folderName) {
+        output.textContent = "請先輸入新資料夾名稱，或選擇現有資料夾。";
+        return;
+      }
+
+      if (!files.length) {
+        output.textContent = "請先選擇教材檔案。";
+        return;
+      }
+
+      const form = new FormData();
+      form.append("folder_name", folderName);
+      form.append("data_type", dataType);
+      for (const file of files) {
+        form.append("files", file);
+      }
+
+      uploadBtn.disabled = true;
+      output.textContent = "上傳中...";
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/upload_material_folder`, {
+          method: "POST",
+          body: form,
+        });
+
+        const text = await resp.text();
+
+        if (!resp.ok) {
+          output.textContent = text || `上傳失敗：HTTP ${resp.status}`;
+          return;
+        }
+
+        try {
+          output.textContent = JSON.stringify(JSON.parse(text), null, 2);
+        } catch {
+          output.textContent = text || "上傳完成";
+        }
+
+        await loadExistingFolders();
+        await loadExistingFiles();
+        clearSelectedFiles();
+      } catch (err) {
+        output.textContent = `上傳失敗：${err.message || err}`;
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    }
+
+    function escapeHtml(v) {
+      return String(v)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    boot();
+  </script>
+</body>
+</html>

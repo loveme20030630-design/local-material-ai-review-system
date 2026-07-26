@@ -1,0 +1,1650 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>搜尋</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #d9e0ea;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --shadow: 0 8px 24px rgba(15,23,42,.06);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100vw;
+      max-width: 100vw;
+      min-height: 100vh;
+      overflow-x: hidden;
+      touch-action: pan-y;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-inner {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .layout {
+      max-width: 1500px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 0.95fr 1.4fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .left-column {
+      display: grid;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .checkbox-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .checkbox-line input {
+      width: auto;
+    }
+
+    .checkbox-line.sub-option {
+      margin-left: 26px;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .checkbox-line.sub-option.disabled {
+      opacity: .55;
+    }
+
+    .option-tip {
+      margin-top: 6px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      padding-left: 26px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+    }
+
+    input, textarea {
+      padding: 10px 12px;
+    }
+
+    select {
+      height: 48px;
+      line-height: 48px;
+      padding: 0 12px;
+      min-width: 0;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: #93c5fd;
+      background: #f8fbff;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .info {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fafcff;
+      margin-top: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .output {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.7;
+      font-size: 14px;
+      background: #fbfcfe;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      min-height: 420px;
+      overflow: auto;
+    }
+
+    .keyword-drawer {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+      padding: 12px;
+    }
+
+    .keyword-drawer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .keyword-drawer-body {
+      margin-top: 12px;
+    }
+
+    .keyword-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .keyword-chip {
+      appearance: none;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1d4ed8;
+      padding: 6px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .keyword-chip:hover {
+      background: #dbeafe;
+      border-color: #93c5fd;
+    }
+
+
+    .search-image-grid {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .search-image-link {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 6px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .search-image-thumb {
+      width: 220px;
+      max-width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 6px;
+      box-shadow: var(--shadow);
+    }
+
+    .search-image-thumb img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+    }
+
+    .search-image-cap {
+      font-size: 12px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+
+
+    .mobile-collapse-toggle {
+      display: none;
+    }
+
+    @media (max-width: 720px) {
+
+      html,
+      body,
+      .app,
+      .topbar,
+      .topbar-inner,
+      .layout {
+        width: 100vw;
+        max-width: 100vw;
+        margin-left: 0;
+        margin-right: 0;
+        box-sizing: border-box;
+        overflow-x: hidden;
+      }
+
+      .layout > *,
+      .left-column,
+      .card,
+      .card-head,
+      .card-body,
+      .toolbar,
+      .pill,
+      .keyword-drawer,
+      .keyword-drawer-head,
+      .keyword-drawer-body,
+      .keyword-chip-row,
+      .output,
+      .info {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      .card-body,
+      .toolbar,
+      .pill,
+      .info,
+      .output,
+      .keyword-chip,
+      .search-image-cap {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      pre,
+      code {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        max-width: 100%;
+      }
+
+      body {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+
+      .card-title {
+        font-size: 19px;
+      }
+
+      .field label {
+        font-size: 15px;
+      }
+
+      button,
+      select,
+      input,
+      textarea {
+        font-size: 16px;
+      }
+
+      .info {
+        font-size: 15px;
+        line-height: 1.8;
+      }
+
+      .output {
+        font-size: 16px;
+        line-height: 1.85;
+        overflow-x: hidden;
+        white-space: pre-wrap;
+      }
+
+      .keyword-chip {
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .search-image-cap {
+        font-size: 13px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+      }
+
+      .topbar {
+        position: static;
+      }
+
+      .topbar-inner {
+        padding: 12px 10px;
+        align-items: stretch;
+      }
+
+      .brand h1 {
+        font-size: 18px;
+      }
+
+      .toolbar {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toolbar > *,
+      .pill,
+      button,
+      select,
+      input,
+      textarea {
+        width: 100%;
+        max-width: none;
+      }
+
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+        width: 100vw;
+        max-width: 100vw;
+        padding: 10px 6px;
+        gap: 12px;
+      }
+
+      .card {
+        border-radius: 14px;
+      }
+
+      .card-head {
+        padding: 14px;
+      }
+
+      .card-body {
+        padding: 14px;
+      }
+
+      .mobile-collapse-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .mobile-collapse-toggle {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 42px;
+        width: auto;
+        padding: 8px 10px;
+      }
+
+      .mobile-collapsible.collapsed > .mobile-collapse-body {
+        display: none;
+      }
+
+      #keywordPanel.collapsed .keyword-drawer-body {
+        display: none !important;
+      }
+
+      textarea {
+        min-height: 96px;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .keyword-drawer-head {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .keyword-chip-row {
+        gap: 6px;
+      }
+
+      .keyword-chip {
+        width: auto;
+      }
+
+      .output {
+        min-height: 300px;
+        font-size: 16px;
+        line-height: 1.85;
+        padding: 12px;
+        overflow-x: hidden;
+        white-space: pre-wrap;
+      }
+
+      .search-image-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .search-image-link {
+        width: 100%;
+      }
+
+      .search-image-thumb {
+        width: 100%;
+      }
+
+      .search-image-thumb img {
+        width: 100%;
+      }
+    }
+
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .section-note {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .keyword-helper {
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+      padding: 14px;
+    }
+
+    .keyword-helper-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .keyword-helper-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .keyword-helper-text {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .compact-info {
+      margin-top: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .independent-badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 720px) {
+      .field-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .keyword-helper-head {
+        flex-direction: column;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <h1>搜尋</h1>
+        </div>
+
+        <div class="toolbar">
+          <button type="button" id="backLauncherBtn">回到 Launcher</button>
+          <div class="pill" id="metaInfo">尚未載入</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <div class="left-column">
+        <section class="card mobile-collapsible" id="searchSettingsPanel">
+          <div class="card-head">
+            <div class="mobile-collapse-head">
+              <h2 class="card-title">內容查詢</h2>
+              <button class="mobile-collapse-toggle" type="button" data-target="searchSettingsPanel">收合</button>
+            </div>
+          </div>
+
+          <div class="card-body mobile-collapse-body">
+            <p class="section-note">
+              本區參數只用於找段落、整理資料與載入已生成關鍵字；不會受到下方關鍵字生成設定影響。
+            </p>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="subjectSelect">科目</label>
+                <select id="subjectSelect"></select>
+              </div>
+
+              <div class="field">
+                <label for="dataTypeSelect">格式</label>
+                <select id="dataTypeSelect"></select>
+              </div>
+
+              <div class="field">
+                <label for="langSelect">查詢語言</label>
+                <select id="langSelect">
+                  <option value="cn">繁體中文 / cn</option>
+                  <option value="en">English / en</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="chapterSelect">查詢範圍</label>
+                <select id="chapterSelect"></select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="kInput">topK</label>
+              <input id="kInput" type="number" min="1" value="15" />
+            </div>
+
+            <div class="field">
+              <label for="queryInput">查詢內容</label>
+              <textarea id="queryInput" placeholder="可直接輸入問題，或點選下方已生成關鍵字填入"></textarea>
+            </div>
+
+            <div class="actions">
+              <button type="button" class="primary" id="runSearchBtn">找段落</button>
+              <button type="button" id="runQaBtn">整理資料</button>
+            </div>
+
+            <div class="keyword-helper">
+              <div class="keyword-helper-head">
+                <div>
+                  <h3 class="keyword-helper-title">已生成關鍵字（輔助查詢）</h3>
+                  <p class="keyword-helper-text">
+                    關鍵字不是查詢必要條件。點選關鍵字後會填入查詢內容，也可自行輸入問題。
+                  </p>
+                </div>
+                <span class="independent-badge">使用上方查詢參數</span>
+              </div>
+
+              <div class="field-grid">
+                <div class="field">
+                  <label for="keywordLangSelect">關鍵字語言</label>
+                  <select id="keywordLangSelect">
+                    <option value="cn">繁體中文 / cn</option>
+                    <option value="en">English / en</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="tipChapterSelect">顯示章節</label>
+                  <select id="tipChapterSelect"></select>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button type="button" id="loadKeywordsBtn">載入已生成關鍵字</button>
+              </div>
+
+              <div class="info compact-info" id="keywordQueryScope">
+                關鍵字將依照上方科目、格式與查詢範圍載入。
+              </div>
+              <div class="keyword-chip-row" id="keywordChipRow"></div>
+              <div class="info compact-info" id="keywordDisplayStatus">尚未載入關鍵字。</div>
+            </div>
+
+            <div class="info" id="statusBox">載入中…</div>
+          </div>
+        </section>
+
+        <section class="card mobile-collapsible" id="keywordGeneratePanel">
+          <div class="card-head">
+            <div class="mobile-collapse-head">
+              <h2 class="card-title">關鍵字生成</h2>
+              <button class="mobile-collapse-toggle" type="button" data-target="keywordGeneratePanel">收合</button>
+            </div>
+          </div>
+
+          <div class="card-body mobile-collapse-body">
+            <p class="section-note">
+              本區具有獨立的科目、格式、語言與範圍設定。修改本區參數不會改變上方查詢條件。
+            </p>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="generateSubjectSelect">科目</label>
+                <select id="generateSubjectSelect"></select>
+              </div>
+
+              <div class="field">
+                <label for="generateDataTypeSelect">格式</label>
+                <select id="generateDataTypeSelect"></select>
+              </div>
+
+              <div class="field">
+                <label for="generateLangSelect">關鍵字語言</label>
+                <select id="generateLangSelect">
+                  <option value="cn">繁體中文 / cn</option>
+                  <option value="en">English / en</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="generateChapterSelect">生成範圍</label>
+                <select id="generateChapterSelect"></select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="keywordTopnInput">產生數量</label>
+              <input id="keywordTopnInput" type="number" min="1" max="30" value="8" />
+            </div>
+
+            <label class="checkbox-line" for="keywordUseLlmCheck">
+              <input id="keywordUseLlmCheck" type="checkbox" checked />
+              使用本地 LLM 輔助生成
+            </label>
+
+            <label class="checkbox-line sub-option" id="keywordRefreshLlmLine" for="keywordRefreshLlmCheck">
+              <input id="keywordRefreshLlmCheck" type="checkbox" />
+              強制重新生成 LLM 結果（覆蓋舊結果）
+            </label>
+
+            <div class="option-tip" id="keywordLlmTip">
+              勾選本地 LLM 時，系統會使用本地生成服務輔助篩選關鍵字。
+            </div>
+
+            <div class="actions">
+              <button type="button" class="primary" id="generateKeywordsBtn">生成關鍵字</button>
+            </div>
+
+            <div class="info" id="keywordGenerateStatus">
+              請在本區獨立選擇科目、格式、語言與生成範圍。
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="card">
+        <div class="card-head">
+          <h2 class="card-title">結果</h2>
+        </div>
+
+        <div class="card-body">
+          <div class="output" id="outputBox">尚未查詢</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API_BASE = (() => {
+      const host = window.location.hostname;
+      if (!host) return "http://127.0.0.1:8000";
+      return `${window.location.protocol}//${host}:8000`;
+    })();
+
+    const backLauncherBtn = document.getElementById("backLauncherBtn");
+    const metaInfo = document.getElementById("metaInfo");
+
+    // 上方：查詢與已生成關鍵字
+    const subjectSelect = document.getElementById("subjectSelect");
+    const dataTypeSelect = document.getElementById("dataTypeSelect");
+    const langSelect = document.getElementById("langSelect");
+    const chapterSelect = document.getElementById("chapterSelect");
+    const kInput = document.getElementById("kInput");
+    const queryInput = document.getElementById("queryInput");
+    const runSearchBtn = document.getElementById("runSearchBtn");
+    const runQaBtn = document.getElementById("runQaBtn");
+    const statusBox = document.getElementById("statusBox");
+    const outputBox = document.getElementById("outputBox");
+
+    const keywordLangSelect = document.getElementById("keywordLangSelect");
+    const tipChapterSelect = document.getElementById("tipChapterSelect");
+    const loadKeywordsBtn = document.getElementById("loadKeywordsBtn");
+    const keywordQueryScope = document.getElementById("keywordQueryScope");
+    const keywordChipRow = document.getElementById("keywordChipRow");
+    const keywordDisplayStatus = document.getElementById("keywordDisplayStatus");
+
+    // 下方：獨立關鍵字生成
+    const generateSubjectSelect = document.getElementById("generateSubjectSelect");
+    const generateDataTypeSelect = document.getElementById("generateDataTypeSelect");
+    const generateLangSelect = document.getElementById("generateLangSelect");
+    const generateChapterSelect = document.getElementById("generateChapterSelect");
+    const keywordTopnInput = document.getElementById("keywordTopnInput");
+    const keywordUseLlmCheck = document.getElementById("keywordUseLlmCheck");
+    const keywordRefreshLlmCheck = document.getElementById("keywordRefreshLlmCheck");
+    const keywordRefreshLlmLine = document.getElementById("keywordRefreshLlmLine");
+    const keywordLlmTip = document.getElementById("keywordLlmTip");
+    const generateKeywordsBtn = document.getElementById("generateKeywordsBtn");
+    const keywordGenerateStatus = document.getElementById("keywordGenerateStatus");
+
+    let candidates = [];
+    let currentKeywords = [];
+    let currentTipChapter = "";
+    let currentTipChapterKeys = [];
+
+    boot();
+
+    async function boot() {
+      bindEvents();
+      bindMobileCollapseEvents();
+      syncKeywordLlmOptions();
+
+      await loadCandidates();
+      applyQueryUrlParams();
+      renderMeta();
+
+      if (candidates.length) {
+        keywordLangSelect.value = langSelect.value || "cn";
+        await loadSearchKeywords();
+      }
+    }
+
+    function bindMobileCollapseEvents() {
+      document.querySelectorAll(".mobile-collapse-toggle").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.dataset.target || "";
+          const panel = document.getElementById(targetId);
+          if (!panel) return;
+
+          panel.classList.toggle("collapsed");
+          btn.textContent = panel.classList.contains("collapsed") ? "展開" : "收合";
+        });
+      });
+    }
+
+    function bindEvents() {
+      backLauncherBtn.addEventListener("click", () => {
+        window.location.href = "launcher.html";
+      });
+
+      subjectSelect.addEventListener("change", async () => {
+        renderQueryDataTypeOptions();
+        renderQueryChapterOptions();
+        renderMeta();
+        resetLoadedKeywords();
+        await loadSearchKeywords();
+      });
+
+      dataTypeSelect.addEventListener("change", async () => {
+        renderQueryChapterOptions();
+        renderMeta();
+        resetLoadedKeywords();
+        await loadSearchKeywords();
+      });
+
+      chapterSelect.addEventListener("change", async () => {
+        renderMeta();
+        resetLoadedKeywords();
+        await loadSearchKeywords();
+      });
+
+      langSelect.addEventListener("change", renderMeta);
+
+      keywordLangSelect.addEventListener("change", async () => {
+        resetLoadedKeywords();
+        await loadSearchKeywords();
+      });
+
+      tipChapterSelect.addEventListener("change", async () => {
+        currentTipChapter = tipChapterSelect.value || "";
+        await loadSearchKeywords();
+      });
+
+      loadKeywordsBtn.addEventListener("click", async () => {
+        currentTipChapter = tipChapterSelect.value || "";
+        await loadSearchKeywords();
+      });
+
+      runSearchBtn.addEventListener("click", async () => {
+        await runSearch(false);
+      });
+
+      runQaBtn.addEventListener("click", async () => {
+        await runSearch(true);
+      });
+
+      generateSubjectSelect.addEventListener("change", () => {
+        renderGenerateDataTypeOptions();
+        renderGenerateChapterOptions();
+      });
+
+      generateDataTypeSelect.addEventListener("change", () => {
+        renderGenerateChapterOptions();
+      });
+
+      generateKeywordsBtn.addEventListener("click", generateSearchKeywords);
+      keywordUseLlmCheck.addEventListener("change", syncKeywordLlmOptions);
+    }
+
+    async function loadCandidates() {
+      statusBox.textContent = "載入中…";
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/search_candidates`);
+        const data = await resp.json();
+        candidates = Array.isArray(data.candidates) ? data.candidates : [];
+
+        if (!candidates.length) {
+          statusBox.textContent = "沒有可查詢資料";
+          clearSelect(subjectSelect);
+          clearSelect(dataTypeSelect);
+          clearSelect(chapterSelect);
+          clearSelect(generateSubjectSelect);
+          clearSelect(generateDataTypeSelect);
+          clearSelect(generateChapterSelect);
+          renderGoBuildRangeMessage("目前沒有可查詢資料。請先建立複習範圍並完成索引。");
+          return;
+        }
+
+        renderQuerySubjectOptions();
+        renderQueryDataTypeOptions();
+        renderQueryChapterOptions();
+
+        renderGenerateSubjectOptions();
+        renderGenerateDataTypeOptions();
+        renderGenerateChapterOptions();
+
+        renderMeta();
+        statusBox.textContent = `找到 ${candidates.length} 組可查詢資料`;
+      } catch (err) {
+        statusBox.textContent = `載入失敗：${err.message || err}`;
+      }
+    }
+
+    function applyQueryUrlParams() {
+      if (!candidates.length) return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const langFromUrl = urlParams.get("lang");
+      const subjectFromUrl = urlParams.get("subject");
+      const dataTypeFromUrl = urlParams.get("data_type");
+      const chapterFromUrl = urlParams.get("chapter");
+
+      if (subjectFromUrl && hasOption(subjectSelect, subjectFromUrl)) {
+        subjectSelect.value = subjectFromUrl;
+      }
+
+      renderQueryDataTypeOptions(dataTypeFromUrl || "");
+      renderQueryChapterOptions(chapterFromUrl || "");
+
+      if (langFromUrl && ["cn", "en"].includes(langFromUrl)) {
+        langSelect.value = langFromUrl;
+      }
+    }
+
+    function getSubjects() {
+      return [...new Set(candidates.map((item) => item.subject))];
+    }
+
+    function getCandidate(subject, dataType) {
+      return candidates.find(
+        (item) => item.subject === subject && item.data_type === dataType
+      ) || null;
+    }
+
+    function getTypesForSubject(subject) {
+      return [...new Set(
+        candidates
+          .filter((item) => item.subject === subject)
+          .map((item) => item.data_type)
+      )];
+    }
+
+    function fillSelect(select, values, preferred = "") {
+      const oldValue = preferred || select.value || "";
+      select.innerHTML = values
+        .map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`)
+        .join("");
+
+      if (oldValue && values.includes(oldValue)) {
+        select.value = oldValue;
+      } else {
+        select.value = values[0] || "";
+      }
+    }
+
+    function clearSelect(select) {
+      select.innerHTML = "";
+    }
+
+    function hasOption(select, value) {
+      return Array.from(select.options).some((option) => option.value === value);
+    }
+
+    function renderQuerySubjectOptions(preferred = "") {
+      fillSelect(subjectSelect, getSubjects(), preferred);
+    }
+
+    function renderQueryDataTypeOptions(preferred = "") {
+      fillSelect(dataTypeSelect, getTypesForSubject(subjectSelect.value), preferred);
+    }
+
+    function renderQueryChapterOptions(preferred = "") {
+      const candidate = getCandidate(subjectSelect.value, dataTypeSelect.value);
+      fillSelect(chapterSelect, candidate?.chapters || [], preferred);
+      updateKeywordQueryScope();
+    }
+
+    function renderGenerateSubjectOptions(preferred = "") {
+      fillSelect(generateSubjectSelect, getSubjects(), preferred);
+    }
+
+    function renderGenerateDataTypeOptions(preferred = "") {
+      fillSelect(
+        generateDataTypeSelect,
+        getTypesForSubject(generateSubjectSelect.value),
+        preferred
+      );
+    }
+
+    function renderGenerateChapterOptions(preferred = "") {
+      const candidate = getCandidate(
+        generateSubjectSelect.value,
+        generateDataTypeSelect.value
+      );
+      fillSelect(generateChapterSelect, candidate?.chapters || [], preferred);
+    }
+
+    function getSelectedSubject() {
+      return subjectSelect.value || "";
+    }
+
+    function getSelectedDataType() {
+      return dataTypeSelect.value || "";
+    }
+
+    function getKeywordLang() {
+      return keywordLangSelect.value || "cn";
+    }
+
+    function renderMeta() {
+      const subject = getSelectedSubject() || "-";
+      const dataType = getSelectedDataType() || "-";
+      const lang = langSelect.value || "-";
+      const chapter = chapterSelect.value || "-";
+      metaInfo.textContent = `${subject} / ${dataType} / ${lang} / ${chapter}`;
+      updateKeywordQueryScope();
+    }
+
+    function updateKeywordQueryScope() {
+      const subject = getSelectedSubject() || "-";
+      const dataType = getSelectedDataType() || "-";
+      const chapter = chapterSelect.value || "-";
+      keywordQueryScope.textContent =
+        `目前載入範圍：${subject} / ${dataType} / ${chapter}`;
+    }
+
+    function resetLoadedKeywords() {
+      currentKeywords = [];
+      currentTipChapter = "";
+      currentTipChapterKeys = [];
+      tipChapterSelect.innerHTML = "";
+      keywordChipRow.innerHTML = "";
+      keywordDisplayStatus.textContent = "正在依照上方查詢參數載入關鍵字…";
+      updateKeywordQueryScope();
+    }
+
+    async function loadSearchKeywords() {
+      const subject = getSelectedSubject();
+      const data_type = getSelectedDataType();
+      const chapter = chapterSelect.value || "";
+      const lang = getKeywordLang();
+
+      keywordChipRow.innerHTML = "";
+
+      if (!subject || !data_type || !chapter) {
+        tipChapterSelect.innerHTML = "";
+        keywordDisplayStatus.textContent = "缺少科目、格式或查詢範圍。";
+        return;
+      }
+
+      loadKeywordsBtn.disabled = true;
+      keywordDisplayStatus.textContent = "載入已生成關鍵字中…";
+      updateKeywordQueryScope();
+
+      try {
+        const qs = new URLSearchParams({
+          subject,
+          data_type,
+          chapter,
+          limit: "8",
+          lang,
+        });
+
+        if (currentTipChapter) {
+          qs.set("tip_chapter", currentTipChapter);
+        }
+
+        const resp = await fetch(`${API_BASE}/api/search_keywords?${qs.toString()}`);
+        const data = await resp.json();
+
+        currentTipChapterKeys = Array.isArray(data.chapter_keys) ? data.chapter_keys : [];
+        currentTipChapter = data.selected_tip_chapter || "";
+
+        if (currentTipChapterKeys.length) {
+          tipChapterSelect.innerHTML = currentTipChapterKeys
+            .map((ch) => (
+              `<option value="${escapeHtml(ch)}" ${ch === currentTipChapter ? "selected" : ""}>${escapeHtml(ch)}</option>`
+            ))
+            .join("");
+        } else {
+          tipChapterSelect.innerHTML = "";
+        }
+
+        currentKeywords = Array.isArray(data.keywords) ? data.keywords : [];
+
+        if (!resp.ok || !data.ok || !currentKeywords.length) {
+          keywordChipRow.innerHTML =
+            `<div class="info compact-info">目前沒有可用關鍵字，可使用下方獨立生成區產生。</div>`;
+          keywordDisplayStatus.textContent = "未找到符合目前查詢條件的已生成關鍵字。";
+          return;
+        }
+
+        keywordChipRow.innerHTML = currentKeywords.map((keyword) => `
+          <button type="button" class="keyword-chip" data-keyword="${escapeHtml(keyword)}">
+            ${escapeHtml(keyword)}
+          </button>
+        `).join("");
+
+        keywordChipRow.querySelectorAll(".keyword-chip").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            queryInput.value = btn.dataset.keyword || "";
+            queryInput.focus();
+          });
+        });
+
+        keywordDisplayStatus.textContent =
+          `已載入 ${currentKeywords.length} 個關鍵字；點選後可直接填入查詢內容。`;
+      } catch (err) {
+        keywordChipRow.innerHTML =
+          `<div class="info compact-info">關鍵字載入失敗。</div>`;
+        keywordDisplayStatus.textContent =
+          `關鍵字載入失敗：${err.message || String(err)}`;
+      } finally {
+        loadKeywordsBtn.disabled = false;
+      }
+    }
+
+    function syncKeywordLlmOptions() {
+      const useLlm = Boolean(keywordUseLlmCheck.checked);
+
+      if (!useLlm) {
+        keywordRefreshLlmCheck.checked = false;
+        keywordRefreshLlmCheck.disabled = true;
+        keywordRefreshLlmLine.classList.add("disabled");
+        keywordLlmTip.textContent =
+          "未勾選本地 LLM 時，系統會改用規則與統計方式產生關鍵字，速度較快，但結果可能較不精準。";
+      } else {
+        keywordRefreshLlmCheck.disabled = false;
+        keywordRefreshLlmLine.classList.remove("disabled");
+        keywordLlmTip.textContent =
+          "勾選本地 LLM 時，系統會使用本地生成服務輔助篩選關鍵字；需要重新執行模型時，再勾選強制重新生成。";
+      }
+    }
+
+    async function generateSearchKeywords() {
+      const subject = generateSubjectSelect.value || "";
+      const data_type = generateDataTypeSelect.value || "";
+      const chapter = generateChapterSelect.value || "";
+      const lang = generateLangSelect.value || "cn";
+      const topn = Number(keywordTopnInput.value || 8);
+
+      if (!subject || !data_type || !chapter) {
+        keywordGenerateStatus.textContent =
+          "缺少科目、格式或生成範圍，請先完成本區設定。";
+        return;
+      }
+
+      const useLlm = Boolean(keywordUseLlmCheck.checked);
+      const refreshLlm = useLlm && Boolean(keywordRefreshLlmCheck.checked);
+
+      generateKeywordsBtn.disabled = true;
+      const langLabel = lang === "en" ? "英文" : "繁體中文";
+
+      keywordGenerateStatus.textContent = useLlm
+        ? (
+          refreshLlm
+            ? `關鍵字生成中：正在強制重新執行 LLM（${langLabel}）…`
+            : `關鍵字生成中：正在使用本地 LLM 輔助生成（${langLabel}）…`
+        )
+        : `關鍵字生成中：使用規則與統計方式（${langLabel}）…`;
+
+      try {
+        const payload = {
+          subject,
+          data_type,
+          chapter,
+          lang,
+          topn,
+          use_llm: useLlm,
+          refresh_llm: refreshLlm,
+        };
+
+        const resp = await fetch(`${API_BASE}/api/run_tips`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok) {
+          const detail =
+            data?.detail || data?.stderr || data?.stdout || "關鍵字生成失敗";
+          keywordGenerateStatus.textContent = `生成失敗：${detail}`;
+          return;
+        }
+
+        const sameAsQuery =
+          subject === getSelectedSubject() &&
+          data_type === getSelectedDataType() &&
+          chapter === (chapterSelect.value || "") &&
+          lang === getKeywordLang();
+
+        if (sameAsQuery) {
+          currentTipChapter = "";
+          await loadSearchKeywords();
+          keywordGenerateStatus.textContent =
+            "生成完成；上方已生成關鍵字已依相同條件重新載入。";
+        } else {
+          keywordGenerateStatus.textContent =
+            `生成完成：${subject} / ${data_type} / ${lang} / ${chapter}。` +
+            "上方查詢參數維持不變；需要使用時，請在上方選擇相同條件。";
+        }
+      } catch (err) {
+        keywordGenerateStatus.textContent = `生成失敗：${err.message || err}`;
+      } finally {
+        generateKeywordsBtn.disabled = false;
+      }
+    }
+
+    function renderGoBuildRangeMessage(message) {
+      outputBox.innerHTML = `
+        <div class="info">${escapeHtml(message)}</div>
+        <div class="actions">
+          <button type="button" class="primary" id="goBuildRangeBtn">前往建立複習範圍</button>
+        </div>
+      `;
+
+      const btn = document.getElementById("goBuildRangeBtn");
+      if (btn) {
+        btn.addEventListener("click", () => {
+          window.location.href = "merge_json.html";
+        });
+      }
+    }
+
+    async function runSearch(useQa) {
+      const subject = getSelectedSubject();
+      const data_type = getSelectedDataType();
+      const chapter = chapterSelect.value || "";
+      const query = (queryInput.value || "").trim();
+      const k = Number(kInput.value || 15);
+
+      if (!subject || !data_type || !chapter) {
+        outputBox.textContent = "缺少科目、格式或查詢範圍";
+        return;
+      }
+
+      if (!query) {
+        outputBox.textContent = "請輸入查詢內容";
+        return;
+      }
+
+      runSearchBtn.disabled = true;
+      runQaBtn.disabled = true;
+      statusBox.textContent = useQa ? "整理答案中…" : "找段落中…";
+      outputBox.textContent = "執行中…";
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/run_search`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subject,
+            data_type,
+            chapter,
+            query,
+            k,
+            qa: useQa,
+          }),
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok) {
+          const detailText = String(
+            data?.detail || data?.stderr || data?.stdout || ""
+          );
+
+          if (
+            detailText.includes("index") ||
+            detailText.includes("merge index dir")
+          ) {
+            renderGoBuildRangeMessage(
+              "找不到此範圍的查詢索引。請先建立複習範圍。"
+            );
+          } else {
+            outputBox.innerHTML = await formatSearchResultHtml(data, useQa);
+          }
+          statusBox.textContent = "執行失敗";
+        } else {
+          outputBox.innerHTML = await formatSearchResultHtml(data, useQa);
+          statusBox.textContent = "執行完成";
+        }
+      } catch (err) {
+        statusBox.textContent = "執行失敗";
+        outputBox.textContent = String(err.message || err);
+      } finally {
+        runSearchBtn.disabled = false;
+        runQaBtn.disabled = false;
+      }
+    }
+
+    async function formatSearchResultHtml(data, useQa) {
+      const stdout = String(data?.stdout || "").trim();
+      const stderr = String(data?.stderr || "").trim();
+      const chapter = data?.chapter || "-";
+      const query = data?.query || "-";
+
+      let text = "";
+      text += `章節：${chapter}\n`;
+      text += `查詢：${query}\n\n`;
+
+      if (stdout) {
+        text += useQa ? "結果：\n" : "搜尋結果：\n";
+        text += stdout;
+      } else {
+        text += "沒有結果";
+      }
+
+      if (stderr) {
+        const cleanedErr = stderr
+          .split("\n")
+          .filter((line) => {
+            const s = String(line || "").trim();
+            return (
+              !s.includes("FutureWarning") &&
+              !s.includes("warnings.warn(") &&
+              !s.includes("clean_up_tokenization_spaces") &&
+              !s.startsWith("warnings.warn")
+            );
+          })
+          .join("\n")
+          .trim();
+
+        if (cleanedErr) {
+          text += `\n\n訊息：\n${cleanedErr}`;
+        }
+      }
+
+      return await replaceResultBlocksWithHtml(text);
+    }
+
+    function buildViewerUrlForSearch(docId, page) {
+      const sourceDocId = String(docId || "").trim();
+      const sourcePage = String(page ?? "").trim();
+      const viewerChapter = sourceDocId || chapterSelect.value || "";
+
+      const qs = new URLSearchParams({
+        subject: getSelectedSubject(),
+        data_type: getSelectedDataType(),
+        chapter: viewerChapter,
+        doc_id: sourceDocId,
+        page: sourcePage,
+      });
+
+      return `viewer.html?${qs.toString()}`;
+    }
+
+    async function resolveImageUrl(raw) {
+      const s = String(raw || "").trim();
+      if (!s) return "";
+
+      if (s.startsWith("http://") || s.startsWith("https://")) {
+        return s;
+      }
+
+      const resp = await fetch(
+        `${API_BASE}/api/resolve_image_url?image=${encodeURIComponent(s)}`
+      );
+      const data = await resp.json();
+
+      if (!resp.ok || !data.ok || !data.url) {
+        return "";
+      }
+
+      if (
+        String(data.url).startsWith("http://") ||
+        String(data.url).startsWith("https://")
+      ) {
+        return data.url;
+      }
+
+      return `${API_BASE}${data.url}`;
+    }
+
+    function cleanSearchLineForDisplay(line) {
+      let s = String(line || "");
+      s = s.replace(/^#(\d+)\s+score\s*=\s*[0-9.]+\s*$/i, "#$1");
+      s = s.replace(/^doc_id\s*=\s*(.*?)\s+page\s*=\s*.+$/i, "$1");
+      return s;
+    }
+
+    async function replaceResultBlocksWithHtml(text) {
+      const blocks = String(text || "").split(
+        /(?=^#\d+\s+score\s*=)|(?=^#\d+$)/m
+      );
+      const out = [];
+
+      for (const block of blocks) {
+        const trimmed = String(block || "").trim();
+        if (!trimmed) continue;
+
+        if (!/^#\d+/m.test(trimmed)) {
+          const lines = trimmed
+            .split(/\r?\n/)
+            .map(cleanSearchLineForDisplay)
+            .map(escapeHtml);
+          out.push(lines.join("\n"));
+          continue;
+        }
+
+        const lines = trimmed.split(/\r?\n/);
+
+        let rankLine = "";
+        let chapterLine = "";
+        let sourceDocId = "";
+        let sourcePage = "";
+        let textLines = [];
+        let ocrLines = [];
+        let images = [];
+        let mode = "";
+
+        for (const raw of lines) {
+          const line = String(raw || "");
+
+          if (!rankLine && /^#\d+/i.test(line.trim())) {
+            rankLine = cleanSearchLineForDisplay(line);
+            continue;
+          }
+
+          if (/^doc_id\s*=/i.test(line.trim())) {
+            const docMatch = line
+              .trim()
+              .match(/^doc_id\s*=\s*(.*?)\s+page\s*=\s*(.+?)\s*$/i);
+
+            if (docMatch) {
+              sourceDocId = String(docMatch[1] || "").trim();
+              sourcePage = String(docMatch[2] || "").trim();
+            }
+
+            chapterLine = cleanSearchLineForDisplay(line).trim();
+            continue;
+          }
+
+          const imgMatch = line.match(/^\s*images\s*=\s*(.+)$/i);
+          if (imgMatch) {
+            const rawList = String(imgMatch[1] || "");
+            const pathRegex =
+              /['"]([^'"]+\.(png|jpg|jpeg|gif|webp|bmp|svg))['"]/gi;
+            let pm;
+
+            while ((pm = pathRegex.exec(rawList)) !== null) {
+              const p = String(pm[1] || "").trim();
+              if (p) images.push(p);
+            }
+
+            images = [...new Set(images)];
+            continue;
+          }
+
+          if (/^\s*OCR\s*:\s*$/i.test(line)) {
+            mode = "ocr";
+            continue;
+          }
+
+          if (/^\s*TEXT\s*:\s*$/i.test(line)) {
+            mode = "text";
+            continue;
+          }
+
+          if (/^-+$/.test(line.trim())) {
+            mode = "";
+            continue;
+          }
+
+          if (mode === "ocr") {
+            ocrLines.push(line);
+          } else if (mode === "text") {
+            textLines.push(line);
+          } else if (line.trim()) {
+            out.push(escapeHtml(cleanSearchLineForDisplay(line)));
+          }
+        }
+
+        const visibleText = textLines.join("\n").trim();
+        const visibleOcr = ocrLines.join("\n").trim();
+
+        if (rankLine) out.push(escapeHtml(rankLine));
+        if (chapterLine) out.push(escapeHtml(chapterLine));
+
+        if (sourceDocId && sourcePage) {
+          const viewerUrl = buildViewerUrlForSearch(sourceDocId, sourcePage);
+          out.push(
+            `<a href="${escapeHtml(viewerUrl)}" target="_blank" rel="noopener noreferrer">` +
+            `<button type="button">開啟來源頁</button></a>`
+          );
+        }
+
+        if (visibleText.length > 0) {
+          out.push("  TEXT:");
+          out.push(escapeHtml(visibleText));
+        }
+
+        if (images.length > 0) {
+          const cards = [];
+
+          for (const raw of images) {
+            const url = await resolveImageUrl(raw);
+            if (!url) continue;
+
+            cards.push(`
+              <a class="search-image-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
+                <div class="search-image-thumb">
+                  <img src="${escapeHtml(url)}" alt="${escapeHtml(visibleText || raw)}" loading="lazy">
+                </div>
+              </a>
+            `);
+          }
+
+          if (cards.length > 0) {
+            out.push(`<div class="search-image-grid">${cards.join("")}</div>`);
+          }
+        }
+
+        if (visibleOcr.length > 0) {
+          out.push("  OCR:");
+          out.push(escapeHtml(visibleOcr));
+        }
+
+        out.push("------------------------------------------------------------");
+      }
+
+      return out.join("\n");
+    }
+
+    function escapeHtml(v) {
+      return String(v)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,3771 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>選擇題</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #d9e0ea;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --ok: #15803d;
+      --ok-soft: #dcfce7;
+      --bad: #b91c1c;
+      --bad-soft: #fee2e2;
+      --warn: #92400e;
+      --warn-soft: #fef3c7;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .topbar-inner {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .filebox, .meta-pill, .mode-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .meta-pill {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mode-box {
+      gap: 6px;
+      padding: 6px;
+    }
+
+    .mode-btn {
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: 1px solid transparent;
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .mode-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .layout {
+      max-width: 1500px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: minmax(280px, 0.72fr) minmax(0, 2fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .progress-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #edf2f7;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #60a5fa, #2563eb);
+      transition: width .2s ease;
+    }
+
+    .topic-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 100%;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid #c7d2fe;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 13px;
+      margin-bottom: 12px;
+      word-break: break-word;
+    }
+
+    .q-id {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .q-text {
+      margin: 0 0 18px;
+      font-size: 22px;
+      line-height: 1.55;
+      font-weight: 800;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 14px 14px 12px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      cursor: pointer;
+      transition: .15s ease;
+      background: #fff;
+    }
+
+    .option:hover { border-color: #93c5fd; background: #f8fbff; }
+    .option.selected { border-color: var(--accent); background: var(--accent-soft); }
+    .option.correct { border-color: var(--ok); background: var(--ok-soft); }
+    .option.wrong { border-color: var(--bad); background: var(--bad-soft); }
+    .option input { margin-top: 4px; }
+    .option-key { font-weight: 800; }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: .15s ease;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: #93c5fd;
+      background: #f8fbff;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+    }
+
+    .btn-danger {
+      border-color: #fecaca;
+      background: #fff5f5;
+      color: #991b1b;
+    }
+
+    .result-box {
+      display: grid;
+      gap: 12px;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .status-ok { background: var(--ok-soft); color: var(--ok); border: 1px solid #86efac; }
+    .status-bad { background: var(--bad-soft); color: var(--bad); border: 1px solid #fca5a5; }
+    .status-warn { background: var(--warn-soft); color: var(--warn); border: 1px solid #fcd34d; }
+
+    .score-box {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .mini-stat {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fafcff;
+    }
+
+    .mini-stat .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .mini-stat .value {
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .ex-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .ex-item {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fbfcfe;
+      line-height: 1.75;
+      font-size: 14px;
+    }
+
+    .src-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 0 3px;
+      vertical-align: middle;
+    }
+
+    .src-tag:hover { background: #dbeafe; }
+
+    .evidence-empty {
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 14px;
+    }
+
+    .evidence-card, .history-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .kv {
+      display: grid;
+      gap: 6px;
+      font-size: 14px;
+    }
+
+    .kv-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .kv-key {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .snippet {
+      white-space: pre-wrap;
+      line-height: 1.7;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 14px;
+    }
+
+    .section-gap { margin-top: 16px; }
+    .history-list { display: grid; gap: 10px; margin-top: 10px; }
+    .history-card small { color: var(--muted); }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+
+    .nav-q-btn.status-ok {
+      background: var(--ok-soft);
+      color: var(--ok);
+      border-color: #86efac;
+      font-weight: 900;
+    }
+
+    .nav-q-btn.status-bad {
+      background: var(--bad-soft);
+      color: var(--bad);
+      border-color: #fca5a5;
+      font-weight: 900;
+    }
+
+    .nav-q-btn.status-warn {
+      background: var(--warn-soft);
+      color: var(--warn);
+      border-color: #fcd34d;
+      font-weight: 900;
+    }
+
+    .nav-q-btn.current {
+      border-color: var(--accent);
+      box-shadow: inset 0 0 0 1px var(--accent);
+    }
+
+
+    .evidence-image-grid {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .evidence-image-link {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 6px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .evidence-image-thumb {
+      width: 180px;
+      max-width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 6px;
+      box-shadow: var(--shadow);
+    }
+
+    .evidence-image-thumb img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+    }
+
+    .evidence-image-cap {
+      font-size: 12px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+
+    .source-btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+
+    .mobile-collapse-toggle {
+      display: none;
+    }
+
+    .desktop-admin-only {
+      display: inline-flex;
+    }
+
+    @media (max-width: 1024px) {
+
+      html,
+      body {
+        width: 100vw;
+        max-width: 100vw;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        touch-action: pan-y;
+      }
+
+      .app,
+      .topbar,
+      .topbar-inner,
+      .layout {
+        width: 100vw;
+        max-width: 100vw;
+        margin-left: 0;
+        margin-right: 0;
+        box-sizing: border-box;
+      }
+
+      .layout {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+
+      .layout > *,
+      .card,
+      .card-head,
+      .card-body {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      select,
+      input,
+      button,
+      textarea {
+        max-width: 100%;
+        min-width: 0;
+      }
+
+
+      html,
+      body {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+      }
+
+      body {
+        overflow-x: hidden;
+      }
+
+      .app,
+      .topbar,
+      .topbar-inner,
+      .layout,
+      .card,
+      .card-head,
+      .card-body,
+      .toolbar,
+      .filebox,
+      .meta-pill,
+      .mode-box,
+      .question-card,
+      .side-panel,
+      .result-box,
+      .evidence-card,
+      .history-card,
+      .snippet,
+      .kv,
+      .kv-row,
+      .source-card,
+      .source-block,
+      .ex-item {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      .layout {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+      }
+
+      .toolbar,
+      .card-body,
+      .question-card,
+      .result-box,
+      .evidence-card,
+      .history-card,
+      .snippet,
+      .kv-row,
+      .source-card,
+      .source-block,
+      .ex-item,
+      .muted,
+      .evidence-empty {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      .kv-row {
+        grid-template-columns: minmax(72px, 82px) minmax(0, 1fr);
+      }
+
+      .kv-row > *,
+      .source-card > *,
+      .source-block > *,
+      .evidence-card > *,
+      .history-card > * {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .evidence-image-grid,
+      .image-preview-row,
+      .image-gallery {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      .evidence-image-link,
+      .image-preview-link,
+      .image-link {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      .evidence-image-thumb,
+      .image-preview-thumb,
+      .image-thumb {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+
+      .evidence-image-thumb img,
+      .image-preview-thumb img,
+      .image-thumb img,
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      pre,
+      code {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        max-width: 100%;
+      }
+
+
+      html,
+      body,
+      .app {
+        width: 100%;
+      }
+
+      .topbar-inner,
+      .layout {
+        width: 100%;
+      }
+
+      .layout {
+        padding-left: 6px;
+        padding-right: 6px;
+      }
+
+      .card {
+        width: 100%;
+      }
+
+
+      .layout,
+      .card,
+      .card-body,
+      .output,
+      .snippet,
+      .history-card,
+      .evidence-card {
+        min-width: 0;
+      }
+
+
+      .card-head,
+      .card-body {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .toolbar {
+        gap: 8px;
+      }
+
+      .filebox,
+      .meta-pill,
+      .mode-box {
+        font-size: 16px;
+      }
+
+      .history-card,
+      .evidence-card,
+      .snippet,
+      .ex-item,
+      .kv,
+      .muted,
+      .evidence-empty {
+        overflow-wrap: anywhere;
+      }
+
+      body {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+
+      .topbar {
+        position: static;
+      }
+
+      .topbar-inner {
+        padding: 12px 10px;
+        align-items: stretch;
+      }
+
+      .brand h1 {
+        font-size: 22px;
+      }
+
+      .toolbar {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toolbar > *,
+      .filebox,
+      .meta-pill,
+      .mode-box,
+      button,
+      select,
+      input {
+        width: 100%;
+        max-width: none;
+      }
+
+
+      button,
+      select,
+      input {
+        font-size: 17px;
+        line-height: 1.4;
+      }
+
+      .nav-btn,
+      .source-btn,
+      .delete-btn,
+      .btn-danger,
+      .btn-primary {
+        font-size: 17px;
+      }
+
+
+      .filebox,
+      .mode-box {
+        border-radius: 14px;
+        justify-content: space-between;
+      }
+
+      .mode-box {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 10px;
+        gap: 12px;
+      }
+
+      .card {
+        border-radius: 14px;
+      }
+
+      .card-head {
+        padding: 14px;
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .card-body {
+        padding: 14px;
+      }
+
+      .card-title {
+        font-size: 21px;
+      }
+
+      .mobile-collapse-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .mobile-collapse-toggle {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: auto;
+        min-width: 42px;
+        padding: 8px 10px;
+      }
+
+      .desktop-admin-only {
+        display: none !important;
+      }
+
+      .mobile-collapsible.collapsed .mobile-collapse-body {
+        display: none;
+      }
+
+      .q-text {
+        font-size: 22px;
+        line-height: 1.7;
+      }
+
+      .q-id,
+      .topic-tag,
+      .muted,
+      .evidence-empty,
+      .kv,
+      .snippet,
+      .ex-item,
+      .history-card,
+      .evidence-card {
+        font-size: 16px;
+        line-height: 1.85;
+      }
+
+      .option {
+        grid-template-columns: auto 1fr;
+        padding: 15px 14px;
+        gap: 12px;
+      }
+
+      .option-key {
+        font-size: 18px;
+      }
+
+      .option div,
+      .option span {
+        font-size: 18px;
+        line-height: 1.8;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .score-box {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+      }
+
+      .mini-stat {
+        padding: 10px;
+      }
+
+      .mini-stat .value {
+        font-size: 20px;
+      }
+
+      .nav-grid {
+        grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+      }
+
+      .source-btns {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      }
+
+      .evidence-image-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .evidence-image-link {
+        width: 100%;
+      }
+
+      .evidence-image-thumb {
+        width: 100%;
+      }
+
+      .evidence-image-cap {
+        font-size: 14px;
+        line-height: 1.55;
+        overflow-wrap: anywhere;
+      }
+
+      .kv-row {
+        grid-template-columns: 76px 1fr;
+      }
+
+      #submitExamBtn {
+        width: 100%;
+      }
+    }
+
+
+    @media (max-width: 1200px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .history-panel {
+      grid-column: 1 / -1;
+    }
+
+    .history-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .history-summary-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fafcff;
+      min-width: 0;
+    }
+
+    .history-summary-item .label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .history-summary-item .value {
+      font-size: 15px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .history-details {
+      margin-top: 14px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    .history-details[hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 720px) {
+      .history-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .history-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+    /* 第二版配置：設定全寬、作答兩欄、結果全寬、歷史全寬 */
+    .setup-panel,
+    .result-wide-panel,
+    .history-panel {
+      grid-column: 1 / -1;
+    }
+
+    .setup-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .setup-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .setup-field label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .setup-field select,
+    .setup-field input {
+      width: 100%;
+      min-width: 0;
+      height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      padding: 0 12px;
+      font: inherit;
+    }
+
+    .setup-divider {
+      border: 0;
+      border-top: 1px solid var(--line);
+      margin: 16px 0;
+    }
+
+    .setup-row-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .setup-row-title {
+      font-weight: 800;
+    }
+
+    .setup-actions {
+      display: flex;
+      align-items: end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .practice-main-panel {
+      min-width: 0;
+      height: 100%;
+    }
+
+    #progressPanel,
+    #questionPanel {
+      align-self: stretch;
+    }
+
+    #progressPanel .card-body,
+    #questionPanel .card-body {
+      box-sizing: border-box;
+    }
+
+    .result-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .result-column,
+    .source-column {
+      min-width: 0;
+    }
+
+    .result-column {
+      display: grid;
+      gap: 14px;
+    }
+
+    .source-column {
+      border-left: 1px solid var(--line);
+      padding-left: 18px;
+    }
+
+    .source-column-title {
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    /* 修正桌面版長主題、長檔名與中英混合文字被裁切 */
+    .kv-row {
+      grid-template-columns: 90px minmax(0, 1fr);
+    }
+
+    .kv-row > *,
+    .history-card > *,
+    .history-summary-item,
+    .history-summary-item .value,
+    .topic-tag,
+    .q-text,
+    .ex-item,
+    .snippet {
+      min-width: 0;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .history-question-text {
+      margin-top: 8px;
+      line-height: 1.8;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    @media (max-width: 1100px) {
+      .setup-grid,
+      .result-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .source-column {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+        padding-left: 0;
+        padding-top: 16px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .setup-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .setup-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+
+    .question-review-tools {
+      display: flex;
+      align-items: end;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fafcff;
+    }
+
+    .question-review-field {
+      display: grid;
+      gap: 6px;
+      min-width: min(320px, 100%);
+      flex: 1 1 320px;
+    }
+
+    .question-review-field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .question-review-field select {
+      width: 100%;
+      min-width: 0;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      padding: 0 12px;
+      font: inherit;
+    }
+
+    .question-filter-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .question-status-mark {
+      font-weight: 900;
+    }
+
+    .history-question-review {
+      margin-top: 14px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    .history-question-detail {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .history-source-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .history-source-link {
+      text-decoration: none;
+    }
+
+    .topic-tag {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-all;
+    }
+
+    .topic-value,
+    .kv-row > div:last-child,
+    .history-question-text {
+      min-width: 0;
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-all;
+    }
+
+    @media (max-width: 720px) {
+      .question-review-tools {
+        align-items: stretch;
+      }
+
+      .question-filter-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+    }
+
+
+    .nav-message {
+      grid-column: 1 / -1;
+      width: 100%;
+      max-width: 100%;
+      justify-content: flex-start;
+      text-align: left;
+    }
+
+    .meta-pill {
+      max-width: min(720px, 55vw);
+      min-width: 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1024px) {
+      .meta-pill {
+        max-width: 100%;
+      }
+    }
+
+
+    .score-summary-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fafcff;
+      overflow: hidden;
+    }
+
+    .score-summary-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      flex-wrap: wrap;
+    }
+
+    .score-summary-body {
+      border-top: 1px solid var(--line);
+      padding: 14px;
+    }
+
+    .score-summary-body[hidden] {
+      display: none !important;
+    }
+
+    .review-question-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 15px;
+      display: grid;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .review-question-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .review-question-text {
+      font-size: 18px;
+      line-height: 1.75;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .review-answer-summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .review-answer-box {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      background: #fafcff;
+      min-width: 0;
+    }
+
+    .review-answer-box .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .review-answer-box .value {
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .review-options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .review-option {
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+      background: #fff;
+      min-width: 0;
+    }
+
+    .review-option.correct-answer {
+      border-color: #86efac;
+      background: var(--ok-soft);
+    }
+
+    .review-option.user-wrong {
+      border-color: #fca5a5;
+      background: var(--bad-soft);
+    }
+
+    .review-option-key {
+      font-weight: 900;
+      line-height: 1.6;
+    }
+
+    .review-option-text {
+      min-width: 0;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .review-option-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .review-badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .review-badge.correct {
+      color: var(--ok);
+      background: #fff;
+      border: 1px solid #86efac;
+    }
+
+    .review-badge.wrong {
+      color: var(--bad);
+      background: #fff;
+      border: 1px solid #fca5a5;
+    }
+
+    .explanation-section {
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    .explanation-lead {
+      margin-bottom: 10px;
+      line-height: 1.75;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #fafcff;
+      border: 1px solid var(--line);
+    }
+
+    .history-question-detail .review-question-card {
+      margin-top: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .review-answer-summary {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .review-option {
+        grid-template-columns: 30px minmax(0, 1fr);
+      }
+
+      .review-option-badges {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+      }
+    }
+
+
+    .right-explanation-card .explanation-section {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .collapsible-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .collapsible-section-body[hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 720px) {
+      .collapsible-section-head {
+        align-items: stretch;
+        flex-direction: column;
+      }
+    }
+
+
+    .setup-mode-box {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: min(520px, 100%);
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: none;
+      background: #f8fafc;
+    }
+
+    .setup-mode-box .mode-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    @media (max-width: 720px) {
+      .setup-mode-box {
+        grid-template-columns: minmax(0, 1fr);
+        width: 100%;
+      }
+    }
+
+
+    @media (max-width: 1024px) {
+      #progressPanel,
+      #questionPanel {
+        height: auto;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <h1>選擇題練習</h1>
+        </div>
+
+        <div class="toolbar">
+          <button type="button" id="backLauncherBtn">回到 Launcher</button>
+          <button type="button" id="mergeBtn" class="desktop-admin-only">回到 Merge</button>
+
+          <div class="meta-pill" id="metaInfo" title="目前載入題庫的科目、教材格式與複習範圍">目前未載入題庫</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="card mobile-collapsible setup-panel" id="examSetupPanel">
+        <div class="card-head">
+          <div class="mobile-collapse-head">
+            <h2 class="card-title">題目設定</h2>
+            <button class="mobile-collapse-toggle" type="button" data-target="examSetupPanel">收合</button>
+          </div>
+        </div>
+
+        <div class="card-body mobile-collapse-body">
+          <div class="setup-row-head">
+            <div>
+              <div class="setup-row-title">生成新題目</div>
+              <div class="muted">依照指定科目、格式、複習範圍與題數建立選擇題。</div>
+            </div>
+          </div>
+
+          <div class="setup-grid">
+            <div class="setup-field">
+              <label for="subjectSelect">科目</label>
+              <select id="subjectSelect"></select>
+            </div>
+
+            <div class="setup-field">
+              <label for="dataTypeSelect">教材格式</label>
+              <select id="dataTypeSelect"></select>
+            </div>
+
+            <div class="setup-field">
+              <label for="chapterSelect">複習範圍</label>
+              <select id="chapterSelect"></select>
+            </div>
+
+            <div class="setup-field">
+              <label for="examCountInput">題目數量</label>
+              <input id="examCountInput" type="number" min="1" value="10" />
+            </div>
+          </div>
+
+          <div class="setup-actions" style="margin-top:12px;">
+            <button id="generateExamBtn" class="btn-primary" type="button">生成題目</button>
+          </div>
+
+          <hr class="setup-divider" />
+
+          <div class="setup-row-head">
+            <div>
+              <div class="setup-row-title">載入既有題目</div>
+              <div class="muted">載入、重新練習或刪除先前產生的題目檔案。</div>
+            </div>
+          </div>
+
+          <div class="setup-grid">
+            <div class="setup-field" style="grid-column:span 3;">
+              <label for="generatedExamSelect">已生成題目</label>
+              <select id="generatedExamSelect"></select>
+            </div>
+
+            <div class="setup-actions">
+              <button id="loadGeneratedExamBtn" type="button">載入既有</button>
+              <button id="deleteGeneratedExamBtn" class="btn-danger" type="button">刪除</button>
+            </div>
+          </div>
+
+          <hr class="setup-divider" />
+
+          <div class="setup-row-head">
+            <div>
+              <div class="setup-row-title">作答模式</div>
+              <div class="muted" id="modeDescription">
+                練習模式會在每題送出後立即顯示正確答案、解析與教材來源。
+              </div>
+            </div>
+          </div>
+
+          <div class="mode-box setup-mode-box">
+            <button class="mode-btn active" id="practiceModeBtn" type="button">練習模式</button>
+            <button class="mode-btn" id="testModeBtn" type="button">測驗模式</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card mobile-collapsible practice-main-panel" id="progressPanel">
+        <div class="card-head">
+          <div class="mobile-collapse-head">
+            <h2 class="card-title">進度與導航</h2>
+            <button class="mobile-collapse-toggle" type="button" data-target="progressPanel">收合</button>
+          </div>
+        </div>
+
+        <div class="card-body mobile-collapse-body">
+          <div class="progress-wrap">
+            <div class="progress-top">
+              <span id="progressText">請先生成或載入題目</span>
+              <span id="answeredText">已作答 0 題</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+
+          <div class="score-box">
+            <div class="mini-stat">
+              <div class="label">總題數</div>
+              <div class="value" id="statTotal">0</div>
+            </div>
+            <div class="mini-stat">
+              <div class="label">答對</div>
+              <div class="value" id="statCorrect">0</div>
+            </div>
+            <div class="mini-stat">
+              <div class="label">答對率</div>
+              <div class="value" id="statRate">0%</div>
+            </div>
+          </div>
+
+          <div class="section-gap">
+            <div style="font-weight:800;margin-bottom:8px;">題目導航</div>
+            <div id="questionNavArea" class="nav-grid"></div>
+          </div>
+
+          <div class="section-gap">
+            <div style="font-weight:800;margin-bottom:8px;">本次錯題導航</div>
+            <div id="wrongQuestionNavArea" class="nav-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card practice-main-panel" id="questionPanel">
+        <div class="card-head">
+          <h2 class="card-title">題目與選項</h2>
+          <div class="muted" id="qCounter">-- / --</div>
+        </div>
+
+        <div class="card-body">
+          <div id="questionArea" class="muted">請先生成或載入既有題目。</div>
+        </div>
+      </section>
+
+      <section class="card mobile-collapsible result-wide-panel" id="resultPanel">
+        <div class="card-head">
+          <div class="mobile-collapse-head">
+            <h2 class="card-title" id="resultTitle">作答結果、解析與來源</h2>
+            <button class="mobile-collapse-toggle" type="button" data-target="resultPanel">收合</button>
+          </div>
+        </div>
+
+        <div class="card-body mobile-collapse-body">
+          <div class="result-layout">
+            <div class="result-column">
+              <div id="scoreSummaryArea"></div>
+
+              <div class="question-review-tools">
+                <div class="question-review-field">
+                  <label for="resultQuestionSelect">查看題目</label>
+                  <select id="resultQuestionSelect"></select>
+                </div>
+
+                <div class="question-filter-actions">
+                  <button type="button" class="filter-btn active" id="resultShowAllBtn">全部題目</button>
+                  <button type="button" class="filter-btn" id="resultShowWrongBtn">僅顯示錯題</button>
+                </div>
+              </div>
+
+              <div id="resultArea" class="muted">尚未作答。</div>
+            </div>
+
+            <div class="source-column">
+              <div id="sidePanelArea"></div>
+
+              <div class="section-gap">
+                <div class="collapsible-section-head">
+                  <div class="source-column-title" style="margin-bottom:0;">課文片段與教材圖片</div>
+                  <button type="button" id="toggleEvidenceBtn">收合課文片段</button>
+                </div>
+
+                <div id="evidenceContentWrap" class="collapsible-section-body">
+                  <div id="evidenceArea" class="evidence-empty">點選來源後，這裡會顯示對應內容。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card mobile-collapsible history-panel" id="historyPanel">
+        <div class="card-head">
+          <div class="mobile-collapse-head">
+            <h2 class="card-title">歷史測驗紀錄</h2>
+            <button class="mobile-collapse-toggle" type="button" data-target="historyPanel">收合</button>
+          </div>
+          <button id="clearHistoryBtn" class="btn-danger" type="button">清空全部紀錄</button>
+        </div>
+
+        <div class="card-body mobile-collapse-body">
+          <div class="muted">
+            每筆紀錄預設只顯示測驗摘要；展開後可逐題查看完整題目、選項、答案、解析與來源。
+          </div>
+          <div id="historyArea" class="history-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const HISTORY_KEY = "exam_viewer_history_v1";
+    const API_BASE = (() => {
+      const host = window.location.hostname;
+      if (!host) return "http://127.0.0.1:8000";
+      return `${window.location.protocol}//${host}:8000`;
+    })();
+
+    let examData = null;
+    let currentFileName = "";
+    let mode = "practice";
+    let examCandidates = [];
+    let generatedExamItems = [];
+
+    let practiceQuestions = [];
+    let testQuestions = [];
+    let practiceIndex = 0;
+    let testIndex = 0;
+    let practiceAnswers = {};
+    let testAnswers = {};
+    let testSubmitted = false;
+
+    const backLauncherBtn = document.getElementById('backLauncherBtn');
+    const mergeBtn = document.getElementById('mergeBtn');
+    const subjectSelect = document.getElementById("subjectSelect");
+    const dataTypeSelect = document.getElementById("dataTypeSelect");
+    const chapterSelect = document.getElementById("chapterSelect");
+    const examCountInput = document.getElementById("examCountInput");
+    const generateExamBtn = document.getElementById("generateExamBtn");
+    const generatedExamSelect = document.getElementById("generatedExamSelect");
+    const loadGeneratedExamBtn = document.getElementById("loadGeneratedExamBtn");
+    const deleteGeneratedExamBtn = document.getElementById("deleteGeneratedExamBtn");
+    const metaInfo = document.getElementById("metaInfo");
+    const qCounter = document.getElementById("qCounter");
+    const progressText = document.getElementById("progressText");
+    const answeredText = document.getElementById("answeredText");
+    const progressFill = document.getElementById("progressFill");
+
+    const statTotal = document.getElementById("statTotal");
+    const statCorrect = document.getElementById("statCorrect");
+    const statRate = document.getElementById("statRate");
+
+    const questionArea = document.getElementById("questionArea");
+    const questionNavArea = document.getElementById("questionNavArea");
+    const wrongQuestionNavArea = document.getElementById("wrongQuestionNavArea");
+    const scoreSummaryArea = document.getElementById("scoreSummaryArea");
+    const resultArea = document.getElementById("resultArea");
+    const evidenceArea = document.getElementById("evidenceArea");
+    const sidePanelArea = document.getElementById("sidePanelArea");
+    const historyArea = document.getElementById("historyArea");
+    const resultTitle = document.getElementById("resultTitle");
+    const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+    const toggleEvidenceBtn = document.getElementById("toggleEvidenceBtn");
+    const evidenceContentWrap = document.getElementById("evidenceContentWrap");
+    const resultQuestionSelect = document.getElementById("resultQuestionSelect");
+    const resultShowAllBtn = document.getElementById("resultShowAllBtn");
+    const resultShowWrongBtn = document.getElementById("resultShowWrongBtn");
+
+    let currentResultFilter = "all";
+    let scoreSummaryCollapsed = false;
+    let evidenceCollapsed = false;
+    const historyViewState = {};
+
+    const practiceModeBtn = document.getElementById("practiceModeBtn");
+    const testModeBtn = document.getElementById("testModeBtn");
+    const modeDescription = document.getElementById("modeDescription");
+
+    boot();
+
+    async function boot() {
+      bindGlobalEvents();
+      renderHistory();
+      syncModeUI();
+      await loadExamCandidates();
+      await loadGeneratedExamList();
+      deleteGeneratedExamBtn.disabled = !generatedExamSelect.value;
+      syncEvidenceCollapseUI();
+    }
+
+    function bindGlobalEvents() {
+      subjectSelect.addEventListener("change", async () => {
+        renderDataTypeOptions();
+        renderChapterOptions();
+        await loadGeneratedExamList();
+      });
+
+      dataTypeSelect.addEventListener("change", async () => {
+        renderChapterOptions();
+        await loadGeneratedExamList();
+      });
+
+      generatedExamSelect.addEventListener("change", () => {
+        deleteGeneratedExamBtn.disabled = !generatedExamSelect.value;
+      });
+
+      generateExamBtn.addEventListener("click", async () => {
+        await generateExamFromBackend();
+      });
+
+      loadGeneratedExamBtn.addEventListener("click", async () => {
+        await loadGeneratedExamFromBackend();
+      });
+
+      deleteGeneratedExamBtn.addEventListener("click", async () => {
+        await deleteGeneratedExamFromBackend();
+      });
+
+      practiceModeBtn.addEventListener("click", () => setMode("practice"));
+      testModeBtn.addEventListener("click", () => setMode("test"));
+
+      resultQuestionSelect.addEventListener("change", () => {
+        const idx = Number(resultQuestionSelect.value);
+        if (Number.isNaN(idx)) return;
+        setCurrentIndex(idx);
+        renderQuestion();
+        renderResult();
+        renderEvidenceDefaultForCurrentQuestion();
+      });
+
+      resultShowAllBtn.addEventListener("click", () => {
+        currentResultFilter = "all";
+        syncResultQuestionFilterButtons();
+        renderResultQuestionSelector();
+      });
+
+      resultShowWrongBtn.addEventListener("click", () => {
+        currentResultFilter = "wrong";
+        syncResultQuestionFilterButtons();
+        renderResultQuestionSelector(true);
+      });
+
+      toggleEvidenceBtn.addEventListener("click", () => {
+        evidenceCollapsed = !evidenceCollapsed;
+        syncEvidenceCollapseUI();
+      });
+
+      clearHistoryBtn.addEventListener("click", () => {
+        if (!confirm("確定要清空全部歷史紀錄嗎？")) return;
+        localStorage.removeItem(HISTORY_KEY);
+        renderHistory();
+      });
+
+      backLauncherBtn.addEventListener('click', () => {
+        window.location.href = 'launcher.html';
+      });
+
+      mergeBtn.addEventListener('click', () => {
+        window.location.href = 'merge_json.html';
+      });
+    }
+
+
+    function submitWholeExam() {
+      if (mode !== "test") return;
+      if (!testQuestions.length) return;
+
+      const summary = getScoringSummary();
+      if (summary.answeredCount !== summary.total) {
+        renderResult();
+        return;
+      }
+
+      testSubmitted = true;
+      testQuestions.forEach((q, idx) => {
+        const state = getAnswerState(q, idx);
+        state.submitted = true;
+      });
+
+      saveCurrentResultToHistory();
+      renderQuestion();
+      renderResult();
+      renderEvidenceDefaultForCurrentQuestion();
+    }
+
+
+    function isMobileClient() {
+      return window.matchMedia("(max-width: 768px)").matches;
+    }
+
+    function renderGoBuildRangeExamMessage(message) {
+      if (isMobileClient()) {
+        questionArea.innerHTML = `
+          <div class="status-chip status-warn">需要先建立複習範圍</div>
+          <div class="muted" style="margin-top:10px;">${escapeHtml(message)}<br><br>手機端不提供建立複習範圍功能，請改用電腦端建立後再回到手機練習。</div>
+        `;
+        return;
+      }
+
+      questionArea.innerHTML = `
+        <div class="status-chip status-warn">需要先建立複習範圍</div>
+        <div class="muted" style="margin-top:10px;">${escapeHtml(message)}</div>
+        <div class="actions">
+          <button type="button" class="btn-primary" id="goBuildRangeExamBtn">前往建立複習範圍</button>
+        </div>
+      `;
+      const btn = document.getElementById("goBuildRangeExamBtn");
+      if (btn) {
+        btn.addEventListener("click", () => { window.location.href = "merge_json.html"; });
+      }
+    }
+
+    async function loadExamCandidates() {
+      try {
+        const resp = await fetch(`${API_BASE}/api/exam_candidates`);
+        const data = await resp.json();
+        examCandidates = Array.isArray(data.candidates) ? data.candidates : [];
+
+        if (!examCandidates.length) {
+          metaInfo.textContent = "沒有可出題章節";
+          subjectSelect.innerHTML = "";
+          dataTypeSelect.innerHTML = "";
+          chapterSelect.innerHTML = "";
+          generateExamBtn.disabled = true;
+          renderGoBuildRangeExamMessage("目前沒有可出題的索引資料。請先建立複習範圍。");
+          return;
+        }
+
+        renderSubjectOptions();
+        renderDataTypeOptions();
+        renderChapterOptions();
+        generateExamBtn.disabled = false;
+      } catch (err) {
+        metaInfo.textContent = "載入候選失敗";
+        console.error(err);
+      }
+    }
+
+    async function loadGeneratedExamList() {
+      const subject = getSelectedSubject();
+      const data_type = getSelectedDataType();
+
+      generatedExamItems = [];
+      generatedExamSelect.innerHTML = `<option value="">無</option>`;
+
+      if (!subject || !data_type) {
+        return;
+      }
+
+      try {
+        const resp = await fetch(
+          `${API_BASE}/api/generated_exams?subject=${encodeURIComponent(subject)}&data_type=${encodeURIComponent(data_type)}`
+        );
+        const data = await resp.json();
+        generatedExamItems = Array.isArray(data.items) ? data.items : [];
+
+        generatedExamSelect.innerHTML =
+          `<option value="">無</option>` +
+          generatedExamItems.map(item => `
+            <option value="${escapeHtml(item.chapter + "||" + item.file_name)}">
+              ${escapeHtml(item.chapter)} / ${escapeHtml(item.file_name)}
+            </option>
+          `).join("");
+      } catch (err) {
+        generatedExamSelect.innerHTML = `<option value="">無</option>`;
+      }
+
+      deleteGeneratedExamBtn.disabled = !generatedExamSelect.value;
+    }
+
+
+    async function deleteGeneratedExamFromBackend() {
+      const value = generatedExamSelect.value || "";
+      if (!value) {
+        metaInfo.textContent = "請先選擇要刪除的題目檔";
+        return;
+      }
+
+      const [chapter, file_name] = value.split("||");
+      if (!chapter || !file_name) {
+        metaInfo.textContent = "題目檔選擇格式錯誤";
+        return;
+      }
+
+      if (!confirm(`確定要刪除 ${file_name} 嗎？`)) {
+        return;
+      }
+
+      deleteGeneratedExamBtn.disabled = true;
+      try {
+        const resp = await fetch(`${API_BASE}/api/delete_generated_exam`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subject: getSelectedSubject(),
+            data_type: getSelectedDataType(),
+            chapter,
+            file_name
+          })
+        });
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok) {
+          metaInfo.textContent = "刪除題目失敗";
+          console.error(data);
+          return;
+        }
+
+        if (currentFileName === file_name) {
+          examData = null;
+          currentFileName = "";
+          practiceQuestions = [];
+          testQuestions = [];
+          practiceIndex = 0;
+          testIndex = 0;
+          practiceAnswers = {};
+          testAnswers = {};
+          testSubmitted = false;
+          questionArea.innerHTML = '<div class="muted">請先生成或載入既有題目。</div>';
+          resultArea.innerHTML = '<div class="muted">尚未作答。</div>';
+          sidePanelArea.innerHTML = '';
+          evidenceArea.innerHTML = '點來源標籤後，這裡會顯示對應內容。';
+          updateStats();
+        }
+
+        await loadGeneratedExamList();
+        metaInfo.textContent = `已刪除 ${file_name}`;
+      } catch (err) {
+        metaInfo.textContent = "刪除題目失敗";
+        console.error(err);
+      } finally {
+        deleteGeneratedExamBtn.disabled = !generatedExamSelect.value;
+      }
+    }
+
+    async function loadGeneratedExamFromBackend() {
+      const subject = getSelectedSubject();
+      const data_type = getSelectedDataType();
+      const raw = generatedExamSelect.value || "";
+
+      if (!subject || !data_type || !raw) {
+        metaInfo.textContent = "請先選已生成題目";
+        return;
+      }
+
+      const [chapter, file_name] = raw.split("||");
+
+      loadGeneratedExamBtn.disabled = true;
+      loadGeneratedExamBtn.textContent = "載入中...";
+
+      try {
+        const resp = await fetch(
+          `${API_BASE}/api/load_generated_exam?subject=${encodeURIComponent(subject)}&data_type=${encodeURIComponent(data_type)}&chapter=${encodeURIComponent(chapter)}&file_name=${encodeURIComponent(file_name)}`
+        );
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok || !data.exam || !Array.isArray(data.exam.questions)) {
+          metaInfo.textContent = "載入失敗";
+          questionArea.innerHTML = `<div class="status-chip status-bad">載入失敗</div>
+            <div class="muted" style="margin-top:10px;">${escapeHtml(JSON.stringify(data, null, 2))}</div>`;
+          return;
+        }
+
+        loadExamDataIntoViewer(data.exam, data.file_name || data.exam_json_path || "generated_exam.json");
+      } catch (err) {
+        metaInfo.textContent = "載入失敗";
+        questionArea.innerHTML = `<div class="status-chip status-bad">載入失敗</div>
+          <div class="muted" style="margin-top:10px;">${escapeHtml(String(err.message || err))}</div>`;
+      } finally {
+        loadGeneratedExamBtn.disabled = false;
+        loadGeneratedExamBtn.textContent = "載入既有";
+      }
+    }
+
+    function loadExamDataIntoViewer(exam, fileName) {
+      examData = exam;
+      currentFileName = fileName || "exam.json";
+
+      const baseQuestions = examData.questions.map(q => ({ ...q }));
+      practiceQuestions = baseQuestions.map(q => ({ ...q }));
+      testQuestions = shuffleArray(baseQuestions.map(q => ({ ...q })));
+
+      practiceIndex = 0;
+      testIndex = 0;
+      practiceAnswers = {};
+      testAnswers = {};
+      testSubmitted = false;
+      currentResultFilter = "all";
+      scoreSummaryCollapsed = false;
+
+      updateMeta();
+      renderQuestion();
+      renderResult();
+      renderEvidenceDefaultForCurrentQuestion();
+    }
+
+    function getSelectedSubject() {
+      return subjectSelect.value || "";
+    }
+
+    function getSelectedDataType() {
+      return dataTypeSelect.value || "";
+    }
+
+    function getSelectedCandidate() {
+      const subject = getSelectedSubject();
+      const dataType = getSelectedDataType();
+      return examCandidates.find(
+        item => item.subject === subject && item.data_type === dataType
+      ) || null;
+    }
+
+    function renderSubjectOptions() {
+      const subjects = [...new Set(examCandidates.map(x => x.subject))];
+      subjectSelect.innerHTML = subjects
+        .map(subject => `<option value="${escapeHtml(subject)}">${escapeHtml(subject)}</option>`)
+        .join("");
+    }
+
+    function renderDataTypeOptions() {
+      const subject = getSelectedSubject();
+      const types = examCandidates
+        .filter(x => x.subject === subject)
+        .map(x => x.data_type);
+
+      dataTypeSelect.innerHTML = types
+        .map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`)
+        .join("");
+    }
+
+    function renderChapterOptions() {
+      const candidate = getSelectedCandidate();
+      const chapters = candidate?.chapters || [];
+
+      chapterSelect.innerHTML = chapters
+        .map(ch => `<option value="${escapeHtml(ch)}">${escapeHtml(ch)}</option>`)
+        .join("");
+    }
+
+    async function generateExamFromBackend() {
+      const subject = getSelectedSubject();
+      const data_type = getSelectedDataType();
+      const chapter = chapterSelect.value || "";
+      const n = Number(examCountInput.value || 10);
+
+      if (!subject || !data_type || !chapter) {
+        metaInfo.textContent = "請先選 subject / type / chapter";
+        return;
+      }
+
+      generateExamBtn.disabled = true;
+      generateExamBtn.textContent = "生成中...";
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/run_exam`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            subject,
+            data_type,
+            chapter,
+            n,
+            k: 5,
+            lang: "cn",
+            strict_quote: false
+          })
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok || !data.exam || !Array.isArray(data.exam.questions)) {
+          metaInfo.textContent = "生成失敗";
+          const detailText = String(data?.detail || data?.stderr || data?.stdout || "");
+          if (detailText.includes("index") || detailText.includes("merge index dir")) {
+            renderGoBuildRangeExamMessage("找不到此章節的題目生成索引。請先建立複習範圍。");
+          } else {
+            questionArea.innerHTML = `<div class="status-chip status-bad">生成失敗</div>
+              <div class="muted" style="margin-top:10px;">${escapeHtml(JSON.stringify(data, null, 2))}</div>`;
+          }
+          return;
+        }
+
+        loadExamDataIntoViewer(
+          data.exam,
+          data.exam_json_path || `${subject}_${data_type}_${chapter}.json`
+        );
+
+        await loadGeneratedExamList();
+      } catch (err) {
+        metaInfo.textContent = "生成失敗";
+        questionArea.innerHTML = `<div class="status-chip status-bad">生成失敗</div>
+          <div class="muted" style="margin-top:10px;">${escapeHtml(String(err.message || err))}</div>`;
+      } finally {
+        generateExamBtn.disabled = false;
+        generateExamBtn.textContent = "生成題目";
+      }
+    }
+
+    function setMode(nextMode) {
+      if (mode === nextMode) return;
+      mode = nextMode;
+      syncModeUI();
+      renderQuestion();
+      renderResult();
+      renderEvidenceDefaultForCurrentQuestion();
+    }
+
+    function syncModeUI() {
+      practiceModeBtn.classList.toggle("active", mode === "practice");
+      testModeBtn.classList.toggle("active", mode === "test");
+
+      if (modeDescription) {
+        modeDescription.textContent = mode === "practice"
+          ? "練習模式會在每題送出後立即顯示正確答案、解析與教材來源。"
+          : "測驗模式會在完成全部題目並提交整份後，再統一顯示成績、答案、解析與教材來源。";
+      }
+
+      resultTitle.textContent = mode === "practice"
+        ? "作答結果、解析與來源"
+        : "測驗結果、解析與來源";
+    }
+
+    function updateMeta() {
+      const meta = examData && examData.meta ? examData.meta : {};
+      const subject = meta.subject || getSelectedSubject() || "-";
+      const dataType = meta.data_type || getSelectedDataType() || "-";
+      const chapter = meta.chapter || chapterSelect.value || "-";
+      metaInfo.textContent =
+        '目前載入題庫：' + subject + ' / ' + dataType + ' / ' + chapter;
+      metaInfo.title =
+        '目前載入題庫的科目、教材格式與複習範圍';
+    }
+
+    function getActiveQuestions() {
+      return mode === "practice" ? practiceQuestions : testQuestions;
+    }
+
+    function getCurrentIndex() {
+      return mode === "practice" ? practiceIndex : testIndex;
+    }
+
+    function setCurrentIndex(next) {
+      if (mode === "practice") practiceIndex = next;
+      else testIndex = next;
+    }
+
+    function getCurrentQuestion() {
+      const questions = getActiveQuestions();
+      return questions[getCurrentIndex()] || null;
+    }
+
+    function getQuestionId(q, idx) {
+      return (q && q.id) || ('Q' + String(idx + 1).padStart(4, '0'));
+    }
+
+    function getAnswerStore() {
+      return mode === "practice" ? practiceAnswers : testAnswers;
+    }
+
+    function getAnswerState(q, idx) {
+      const qid = getQuestionId(q, idx);
+      const store = getAnswerStore();
+      if (!store[qid]) {
+        store[qid] = { selected: "", submitted: false };
+      }
+      return store[qid];
+    }
+
+    function getScoringSummary() {
+      const questions = getActiveQuestions();
+      const store = getAnswerStore();
+      const total = questions.length;
+      let answeredCount = 0;
+      let submittedCount = 0;
+      let correctCount = 0;
+
+      questions.forEach((q, idx) => {
+        const qid = getQuestionId(q, idx);
+        const state = store[qid] || { selected: "", submitted: false };
+        if (state.selected) answeredCount += 1;
+        if (state.submitted) {
+          submittedCount += 1;
+          if (state.selected && state.selected === q.answer) correctCount += 1;
+        }
+      });
+
+      return { total, answeredCount, submittedCount, correctCount };
+    }
+
+    function updateStats() {
+      const summary = getScoringSummary();
+      const total = summary.total;
+      const answeredCount = summary.answeredCount;
+      const correctCount = summary.correctCount;
+      const currentIndex = getCurrentIndex();
+      const percent = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+      statTotal.textContent = String(total);
+      statCorrect.textContent = String(correctCount);
+      statRate.textContent = percent + '%';
+      answeredText.textContent = '已作答 ' + answeredCount + ' 題';
+      progressText.textContent = total > 0 ? ('目前第 ' + (currentIndex + 1) + ' 題，共 ' + total + ' 題') : '請先生成或載入題目';
+      progressFill.style.width = percent + '%';
+      qCounter.textContent = total > 0 ? ((currentIndex + 1) + ' / ' + total) : '-- / --';
+
+    }
+
+    function renderQuestion() {
+      const questions = getActiveQuestions();
+      const currentIndex = getCurrentIndex();
+      const q = getCurrentQuestion();
+
+      updateStats();
+      renderQuestionNav();
+      renderWrongQuestionNav();
+      renderResultQuestionSelector();
+      renderSidePanel();
+      expandResultPanelOnMobile();
+
+      if (!q) {
+        questionArea.innerHTML = '<div class="muted">沒有題目可顯示。</div>';
+        return;
+      }
+
+      const state = getAnswerState(q, currentIndex);
+      const qid = getQuestionId(q, currentIndex);
+      const topic = q.topic || '未提供 topic';
+      const options = normalizeOptions(q.options);
+      const reveal = mode === 'practice' ? state.submitted : testSubmitted;
+      const disabled = mode === 'practice' ? state.submitted : testSubmitted;
+      const summary = getScoringSummary();
+      const canSubmitWholeExam =
+        mode === 'test' &&
+        summary.total > 0 &&
+        !testSubmitted &&
+        summary.answeredCount === summary.total;
+
+      questionArea.innerHTML = `
+        <div class="q-id">題目 ID：${escapeHtml(qid)}</div>
+        <div class="topic-tag">${escapeHtml(topic)}</div>
+        <div class="q-text">${escapeHtml(q.question || '')}</div>
+
+        <div class="options">
+          ${['A','B','C','D'].map(key => {
+            const text = options[key] || '';
+            const isSelected = state.selected === key;
+            const classNames = ['option'];
+            if (isSelected) classNames.push('selected');
+            if (reveal && key === q.answer) classNames.push('correct');
+            if (reveal && state.selected === key && key !== q.answer) classNames.push('wrong');
+
+            return `
+              <label class="${classNames.join(' ')}">
+                <input type="radio" name="answer" value="${key}" ${isSelected ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
+                <div>
+                  <div class="option-key">${key}</div>
+                  <div>${escapeHtml(text)}</div>
+                </div>
+              </label>
+            `;
+          }).join('')}
+        </div>
+
+        <div class="actions">
+          <button id="prevBtn" ${currentIndex === 0 ? 'disabled' : ''}>上一題</button>
+          <button id="nextBtn" ${currentIndex === questions.length - 1 ? 'disabled' : ''}>下一題</button>
+          ${mode === 'practice' ? `<button id="submitBtn" class="btn-primary" ${state.submitted ? 'disabled' : ''}>送出本題</button>` : ''}
+          <button id="resetBtn" ${mode === 'test' && testSubmitted ? 'disabled' : ''}>重設本題</button>
+          ${mode === 'test'
+            ? `<button id="submitExamBtn" class="btn-primary" ${canSubmitWholeExam ? '' : 'disabled'}>提交整份</button>`
+            : ''}
+        </div>
+      `;
+
+      questionArea.querySelectorAll('input[name="answer"]').forEach((input) => {
+        input.addEventListener('change', (e) => {
+          state.selected = e.target.value;
+          renderQuestion();
+          renderResult();
+          renderEvidenceDefaultForCurrentQuestion();
+        });
+      });
+
+      document.getElementById('prevBtn')?.addEventListener('click', () => {
+        if (currentIndex > 0) {
+          setCurrentIndex(currentIndex - 1);
+          renderQuestion();
+          renderResult();
+          renderEvidenceDefaultForCurrentQuestion();
+        }
+      });
+
+      document.getElementById('nextBtn')?.addEventListener('click', () => {
+        if (currentIndex < questions.length - 1) {
+          setCurrentIndex(currentIndex + 1);
+          renderQuestion();
+          renderResult();
+          renderEvidenceDefaultForCurrentQuestion();
+        }
+      });
+
+      document.getElementById('submitBtn')?.addEventListener('click', () => {
+        state.submitted = true;
+        renderQuestion();
+        renderResult();
+        renderEvidenceDefaultForCurrentQuestion();
+      });
+
+      document.getElementById('resetBtn')?.addEventListener('click', () => {
+        if (mode === 'test' && testSubmitted) return;
+        state.selected = '';
+        state.submitted = false;
+        renderQuestion();
+        renderResult();
+        renderEvidenceDefaultForCurrentQuestion();
+      });
+
+      document.getElementById('submitExamBtn')?.addEventListener('click', () => {
+        submitWholeExam();
+      });
+    }
+
+    function renderResult() {
+      const q = getCurrentQuestion();
+      if (!q) {
+        scoreSummaryArea.innerHTML = '';
+        resultArea.innerHTML = '<div class="muted">尚未載入題目。</div>';
+        return;
+      }
+
+      updateStats();
+      if (mode === 'practice') renderPracticeResult(q, getCurrentIndex());
+      else renderTestResult();
+    }
+
+    function getOptionText(q, key) {
+      const options = normalizeOptions(q?.options);
+      return String(options[key] || "");
+    }
+
+    function renderReviewOptions(q, selectedAnswer) {
+      const options = normalizeOptions(q?.options);
+      const answer = String(q?.answer || "");
+
+      return `
+        <div class="review-options">
+          ${["A", "B", "C", "D"].map((key) => {
+            const isSelected = selectedAnswer === key;
+            const isCorrect = answer === key;
+            const classes = ["review-option"];
+
+            if (isCorrect) classes.push("correct-answer");
+            if (isSelected && !isCorrect) classes.push("user-wrong");
+
+            const badges = [];
+            if (isSelected) {
+              badges.push(
+                `<span class="review-badge ${isCorrect ? "correct" : "wrong"}">你的答案</span>`
+              );
+            }
+            if (isCorrect) {
+              badges.push(
+                '<span class="review-badge correct">正確答案</span>'
+              );
+            }
+
+            return `
+              <div class="${classes.join(" ")}">
+                <div class="review-option-key">${key}</div>
+                <div class="review-option-text">${escapeHtml(options[key] || "")}</div>
+                <div class="review-option-badges">${badges.join("")}</div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    function renderExplanationList(q, selectedAnswer, historyRecord = null) {
+      const explanation = Array.isArray(q?.explanation) ? q.explanation : [];
+      const answer = String(q?.answer || "");
+      const isCorrect = Boolean(selectedAnswer) && selectedAnswer === answer;
+
+      const selectedText = selectedAnswer
+        ? `${selectedAnswer}．${getOptionText(q, selectedAnswer)}`
+        : "未選擇";
+      const correctText = answer
+        ? `${answer}．${getOptionText(q, answer)}`
+        : "未提供";
+
+      const lead = isCorrect
+        ? `作答正確。你選擇的「${selectedText}」與正確答案一致，以下為教材內容所提供的解題依據。`
+        : `作答錯誤。你選擇的是「${selectedText}」，正確答案為「${correctText}」。以下解析說明正確答案的判斷依據。`;
+
+      const sourceMap =
+        q?.sources_map && typeof q.sources_map === "object"
+          ? q.sources_map
+          : {};
+
+      const renderItem = (item) => {
+        const raw = String(item?.text || "");
+        if (!historyRecord) {
+          return `<div class="ex-item">${replaceSourceTagsWithButtons(raw)}</div>`;
+        }
+        return `<div class="ex-item">${replaceHistorySourceTagsWithLinks(
+          raw,
+          historyRecord,
+          sourceMap
+        )}</div>`;
+      };
+
+      return `
+        <div class="explanation-section">
+          <div style="font-weight:800;margin-bottom:8px;">答案解析</div>
+          <div class="explanation-lead">${escapeHtml(lead)}</div>
+          <div class="ex-list">
+            ${
+              explanation.length
+                ? explanation.map(renderItem).join("")
+                : '<div class="muted">此題未提供額外解析，可透過右側來源頁面確認教材內容。</div>'
+            }
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFullQuestionReview(
+      q,
+      selectedAnswer,
+      questionNumber,
+      questionId,
+      historyRecord = null,
+      includeExplanation = false
+    ) {
+      const answer = String(q?.answer || "");
+      const isCorrect = Boolean(selectedAnswer) && selectedAnswer === answer;
+      const selectedText = selectedAnswer
+        ? `${selectedAnswer}．${getOptionText(q, selectedAnswer)}`
+        : "未選擇";
+      const correctText = answer
+        ? `${answer}．${getOptionText(q, answer)}`
+        : "未提供";
+
+      return `
+        <div class="review-question-card">
+          <div class="review-question-head">
+            <div class="status-chip ${isCorrect ? "status-ok" : "status-bad"}">
+              ${isCorrect ? "答對" : "答錯"}
+            </div>
+            <strong>第 ${questionNumber} 題 / ${escapeHtml(questionId)}</strong>
+          </div>
+
+          <div class="topic-tag">${escapeHtml(q?.topic || "未提供主題")}</div>
+          <div class="review-question-text">${escapeHtml(q?.question || "")}</div>
+
+          <div class="review-answer-summary">
+            <div class="review-answer-box">
+              <div class="label">你的答案</div>
+              <div class="value">${escapeHtml(selectedText)}</div>
+            </div>
+            <div class="review-answer-box">
+              <div class="label">正確答案</div>
+              <div class="value"><strong>${escapeHtml(correctText)}</strong></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-weight:800;margin-bottom:8px;">完整選項</div>
+            ${renderReviewOptions(q, selectedAnswer)}
+          </div>
+
+          ${
+            includeExplanation
+              ? renderExplanationList(q, selectedAnswer, historyRecord)
+              : ""
+          }
+        </div>
+      `;
+    }
+
+    function replaceHistorySourceTagsWithLinks(text, record, sourceMap) {
+      return escapeHtml(text).replace(/\[(\d+)\]/g, function(_, num) {
+        const tag = "[" + num + "]";
+        const src = sourceMap && sourceMap[tag];
+
+        if (!src) {
+          return '<span class="src-tag">' + tag + "</span>";
+        }
+
+        return (
+          '<a class="src-tag" style="text-decoration:none;" href="' +
+          escapeHtml(buildHistoryViewerUrl(record, src)) +
+          '" target="_blank" rel="noopener noreferrer">' +
+          tag +
+          "</a>"
+        );
+      });
+    }
+
+
+    function renderPracticeResult(q, idx) {
+      scoreSummaryArea.innerHTML = '';
+      const state = getAnswerState(q, idx);
+
+      if (!state.submitted) {
+        resultArea.innerHTML =
+          '<div class="result-box"><div class="status-chip status-warn">尚未送出本題</div><div class="muted">選完答案後按「送出本題」，左側會顯示完整題目、作答結果與選項，右側則顯示答案解析與來源。</div></div>';
+        return;
+      }
+
+      resultArea.innerHTML = `
+        <div class="result-box">
+          ${renderFullQuestionReview(
+            q,
+            state.selected,
+            idx + 1,
+            getQuestionId(q, idx)
+          )}
+        </div>
+      `;
+
+      bindSourceTags();
+    }
+
+    function renderTestResult() {
+      const questions = getActiveQuestions();
+      const summary = getScoringSummary();
+      const total = summary.total;
+      const answeredCount = summary.answeredCount;
+      const submittedCount = summary.submittedCount;
+      const correctCount = summary.correctCount;
+
+      const unansweredItems = questions
+        .map((q, idx) => ({ q, idx, state: getAnswerState(q, idx) }))
+        .filter((item) => !item.state.selected)
+        .map((item) => item.idx + 1);
+
+      if (!testSubmitted) {
+        scoreSummaryArea.innerHTML = '';
+        resultArea.innerHTML = `
+          <div class="result-box">
+            <div class="status-chip status-warn">測驗尚未提交</div>
+            <div class="muted">目前已作答 ${answeredCount} / ${total} 題。全部作答後才能提交整份。</div>
+            ${
+              unansweredItems.length
+                ? `<div class="muted">尚未作答題號：<strong>${unansweredItems.join(", ")}</strong></div>`
+                : '<div class="status-chip status-ok">已全部作答，可以提交整份</div>'
+            }
+          </div>
+        `;
+        return;
+      }
+
+      const rate = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+      const wrongCount = Math.max(0, total - correctCount);
+
+      scoreSummaryArea.innerHTML = `
+        <div class="score-summary-card">
+          <div class="score-summary-head">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <div class="status-chip ${
+                correctCount === total ? "status-ok" : "status-bad"
+              }">整份已提交</div>
+              <strong>本次測驗成績</strong>
+            </div>
+            <button type="button" id="toggleScoreSummaryBtn">
+              ${scoreSummaryCollapsed ? "展開成績摘要" : "收合成績摘要"}
+            </button>
+          </div>
+
+          <div class="score-summary-body" ${
+            scoreSummaryCollapsed ? "hidden" : ""
+          }>
+            <div class="kv">
+              <div class="kv-row">
+                <div class="kv-key">正確題數</div>
+                <div>${correctCount} / ${total}</div>
+              </div>
+              <div class="kv-row">
+                <div class="kv-key">正確率</div>
+                <div><strong>${rate}%</strong></div>
+              </div>
+              <div class="kv-row">
+                <div class="kv-key">錯題數</div>
+                <div>${wrongCount}</div>
+              </div>
+              <div class="kv-row">
+                <div class="kv-key">已提交題數</div>
+                <div>${submittedCount}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      resultArea.innerHTML = `
+        <div class="result-box">
+          <div class="muted">
+            可透過上方題號選單查看所有題目，或切換為僅顯示錯題。答對與答錯的題目都會保留完整題目與選項，答案解析則顯示於右側。
+          </div>
+
+          ${renderCurrentQuestionPostTest()}
+        </div>
+      `;
+
+      document
+        .getElementById("toggleScoreSummaryBtn")
+        ?.addEventListener("click", () => {
+          scoreSummaryCollapsed = !scoreSummaryCollapsed;
+          renderResult();
+        });
+
+      bindSourceTags();
+    }
+
+    function renderCurrentQuestionPostTest() {
+      const q = getCurrentQuestion();
+      const idx = getCurrentIndex();
+
+      if (!q) {
+        return '<div class="muted">沒有題目。</div>';
+      }
+
+      const state = getAnswerState(q, idx);
+
+      return renderFullQuestionReview(
+        q,
+        state.selected,
+        idx + 1,
+        getQuestionId(q, idx)
+      );
+    }
+
+    function renderExplanationItem(item) {
+      if (!item) return '<div class="ex-item"></div>';
+      const text = String(item.text || '');
+      return '<div class="ex-item">' + replaceSourceTagsWithButtons(text) + '</div>';
+    }
+
+    function replaceSourceTagsWithButtons(text) {
+      return escapeHtml(text).replace(/\[(\d+)\]/g, function(_, num) {
+        const tag = '[' + num + ']';
+        return '<span class="src-tag" data-tag="' + tag + '">' + tag + '</span>';
+      });
+    }
+
+    function bindSourceTags() {
+      const q = getCurrentQuestion();
+      if (!q) return;
+      resultArea.querySelectorAll('.src-tag').forEach((el) => {
+        el.addEventListener('click', () => renderEvidence(el.dataset.tag, q.sources_map || {}));
+      });
+      sidePanelArea.querySelectorAll('.src-tag').forEach((el) => {
+        el.addEventListener('click', () => renderEvidence(el.dataset.tag, q.sources_map || {}));
+      });
+    }
+
+
+    function renderQuestionNav() {
+      if (!questionNavArea) return;
+
+      const questions = getActiveQuestions();
+      const currentIndex = getCurrentIndex();
+
+      if (!questions.length) {
+        questionNavArea.innerHTML = '<div class="muted">尚無題目。</div>';
+        return;
+      }
+
+      questionNavArea.innerHTML = questions.map((item, idx) => {
+        const s = getAnswerState(item, idx);
+        let cls = '';
+
+        if (mode === 'practice') {
+          if (s.submitted && s.selected === item.answer) cls = 'status-ok';
+          else if (s.submitted && s.selected && s.selected !== item.answer) cls = 'status-bad';
+          else if (s.selected) cls = 'status-warn';
+        } else {
+          if (testSubmitted && s.selected === item.answer) cls = 'status-ok';
+          else if (testSubmitted && s.selected && s.selected !== item.answer) cls = 'status-bad';
+          else if (s.selected) cls = 'status-warn';
+        }
+
+        const current = idx === currentIndex ? 'current' : '';
+        return '<button type="button" class="nav-q-btn ' + cls + ' ' + current + '" data-qidx="' + idx + '">' + (idx + 1) + '</button>';
+      }).join('');
+
+      questionNavArea.querySelectorAll('.nav-q-btn').forEach((el) => {
+        el.addEventListener('click', () => {
+          const idx = Number(el.dataset.qidx);
+          if (Number.isNaN(idx)) return;
+          setCurrentIndex(idx);
+          renderQuestion();
+          renderResult();
+          renderEvidenceDefaultForCurrentQuestion();
+        });
+      });
+    }
+
+
+    function syncEvidenceCollapseUI() {
+      if (!toggleEvidenceBtn || !evidenceContentWrap) return;
+
+      if (evidenceCollapsed) {
+        evidenceContentWrap.setAttribute("hidden", "");
+        toggleEvidenceBtn.textContent = "展開課本文段";
+      } else {
+        evidenceContentWrap.removeAttribute("hidden");
+        toggleEvidenceBtn.textContent = "收合課本文段";
+      }
+    }
+
+
+    function getQuestionReviewStatus(q, idx) {
+      const state = getAnswerState(q, idx);
+
+      if (mode === "practice") {
+        if (!state.submitted) {
+          return { key: "pending", mark: "○", label: "未提交" };
+        }
+        if (state.selected === q.answer) {
+          return { key: "correct", mark: "✓", label: "答對" };
+        }
+        return { key: "wrong", mark: "✕", label: "答錯" };
+      }
+
+      if (!testSubmitted) {
+        return {
+          key: state.selected ? "answered" : "pending",
+          mark: state.selected ? "●" : "○",
+          label: state.selected ? "已作答" : "未作答"
+        };
+      }
+
+      if (state.selected === q.answer) {
+        return { key: "correct", mark: "✓", label: "答對" };
+      }
+
+      return { key: "wrong", mark: "✕", label: "答錯" };
+    }
+
+    function getResultQuestionIndexes() {
+      const questions = getActiveQuestions();
+
+      return questions
+        .map((q, idx) => ({ q, idx, status: getQuestionReviewStatus(q, idx) }))
+        .filter((item) => {
+          if (currentResultFilter !== "wrong") return true;
+          return item.status.key === "wrong";
+        });
+    }
+
+    function syncResultQuestionFilterButtons() {
+      resultShowAllBtn.classList.toggle("active", currentResultFilter === "all");
+      resultShowWrongBtn.classList.toggle("active", currentResultFilter === "wrong");
+    }
+
+    function renderResultQuestionSelector(jumpToFirst = false) {
+      if (!resultQuestionSelect) return;
+
+      syncResultQuestionFilterButtons();
+
+      const items = getResultQuestionIndexes();
+      const currentIndex = getCurrentIndex();
+
+      if (!items.length) {
+        resultQuestionSelect.innerHTML =
+          '<option value="">目前沒有符合條件的題目</option>';
+        resultQuestionSelect.disabled = true;
+        return;
+      }
+
+      resultQuestionSelect.disabled = false;
+      resultQuestionSelect.innerHTML = items.map((item) => {
+        const selected = item.idx === currentIndex ? "selected" : "";
+        return (
+          '<option value="' + item.idx + '" ' + selected + '>' +
+          item.status.mark + ' 第 ' + (item.idx + 1) + ' 題｜' +
+          item.status.label +
+          '</option>'
+        );
+      }).join("");
+
+      const currentVisible = items.some((item) => item.idx === currentIndex);
+      if ((jumpToFirst || !currentVisible) && items.length) {
+        const nextIndex = items[0].idx;
+        resultQuestionSelect.value = String(nextIndex);
+
+        if (nextIndex !== currentIndex) {
+          setCurrentIndex(nextIndex);
+          renderQuestion();
+          renderResult();
+          renderEvidenceDefaultForCurrentQuestion();
+        }
+      } else {
+        resultQuestionSelect.value = String(currentIndex);
+      }
+    }
+
+
+    function renderWrongQuestionNav() {
+      if (!wrongQuestionNavArea) return;
+
+      const questions = getActiveQuestions();
+      const currentIndex = getCurrentIndex();
+
+      if (!questions.length) {
+        wrongQuestionNavArea.innerHTML = '<div class="muted nav-message">尚無題目。</div>';
+        return;
+      }
+
+      if (mode === 'test' && !testSubmitted) {
+        wrongQuestionNavArea.innerHTML = '<div class="muted nav-message">提交整份測驗後顯示錯題。</div>';
+        return;
+      }
+
+      const wrongItems = questions
+        .map((q, idx) => ({ q, idx, state: getAnswerState(q, idx) }))
+        .filter((item) => {
+          if (mode === 'practice') {
+            return item.state.submitted &&
+              item.state.selected &&
+              item.state.selected !== item.q.answer;
+          }
+          return item.state.selected !== item.q.answer;
+        });
+
+      if (!wrongItems.length) {
+        wrongQuestionNavArea.innerHTML =
+          '<div class="status-chip status-ok nav-message">目前沒有錯題</div>';
+        return;
+      }
+
+      wrongQuestionNavArea.innerHTML = wrongItems.map((item) => {
+        const current = item.idx === currentIndex ? 'current' : '';
+        return (
+          '<button type="button" class="nav-q-btn status-bad ' + current +
+          '" data-wrong-qidx="' + item.idx + '">' + (item.idx + 1) + '</button>'
+        );
+      }).join('');
+
+      wrongQuestionNavArea
+        .querySelectorAll('[data-wrong-qidx]')
+        .forEach((button) => {
+          button.addEventListener('click', () => {
+            const idx = Number(button.dataset.wrongQidx);
+            if (Number.isNaN(idx)) return;
+            setCurrentIndex(idx);
+            renderQuestion();
+            renderResult();
+            renderEvidenceDefaultForCurrentQuestion();
+          });
+        });
+    }
+
+
+    function expandResultPanelOnMobile() {
+      const panel = document.getElementById("resultPanel");
+      if (!panel) return;
+
+      panel.classList.remove("collapsed");
+      const btn = panel.querySelector(".mobile-collapse-toggle");
+      if (btn) btn.textContent = "收合";
+    }
+
+    function renderSidePanel() {
+      const q = getCurrentQuestion();
+
+      if (!q) {
+        sidePanelArea.innerHTML =
+          '<div class="muted">尚未載入題目解析與來源。</div>';
+        return;
+      }
+
+      const state = getAnswerState(q, getCurrentIndex());
+      const sourceMap = q.sources_map || {};
+      const sourceTags = Object.keys(sourceMap);
+      const canShowDetail =
+        mode === "practice" ? state.submitted : testSubmitted;
+
+      sidePanelArea.innerHTML = canShowDetail
+        ? `
+            <div class="history-card right-explanation-card">
+              ${renderExplanationList(q, state.selected)}
+            </div>
+
+            <div class="history-card section-gap">
+              <div style="font-weight:800;">本題來源</div>
+              ${
+                sourceTags.length
+                  ? '<div class="source-btns">' +
+                    sourceTags.map((tag) =>
+                      '<button type="button" class="source-open-btn" data-tag="' +
+                      escapeHtml(tag) + '">' + escapeHtml(tag) + "</button>"
+                    ).join("") +
+                    "</div>"
+                  : '<div class="muted">這題沒有來源資訊。</div>'
+              }
+            </div>
+          `
+        : `
+            <div class="history-card">
+              <div style="font-weight:800;">答案解析與來源</div>
+              <div class="muted" style="margin-top:8px;">
+                ${
+                  mode === "practice"
+                    ? "送出本題後顯示答案解析與來源。"
+                    : "提交整份測驗後顯示答案解析與來源。"
+                }
+              </div>
+            </div>
+          `;
+
+      sidePanelArea.querySelectorAll(".source-open-btn").forEach((el) => {
+        el.addEventListener("click", () =>
+          renderEvidence(el.dataset.tag, sourceMap)
+        );
+      });
+
+      bindSourceTags();
+    }
+
+
+    function buildViewerUrlFromSource(src) {
+      const sourceDocId = String(src?.doc_id ?? src?.doc ?? src?.source_doc ?? "").trim();
+      const sourcePage = src?.page ?? src?.page_no ?? src?.pageno ?? "";
+      const viewerChapter = sourceDocId || chapterSelect.value || "";
+
+      const qs = new URLSearchParams({
+        subject: getSelectedSubject(),
+        data_type: getSelectedDataType(),
+        chapter: viewerChapter,
+        doc_id: sourceDocId,
+        page: String(sourcePage ?? ""),
+      });
+
+      return `viewer.html?${qs.toString()}`;
+    }
+
+    function renderEvidence(tag, sourceMap) {
+      if (mode === 'test' && !testSubmitted) {
+        evidenceArea.innerHTML = '<div class="evidence-card"><div class="status-chip status-warn">測驗尚未提交</div><div class="muted">提交前不顯示來源內容。</div></div>';
+        return;
+      }
+
+      const src = sourceMap && sourceMap[tag];
+      if (!src) {
+        evidenceArea.innerHTML = '<div class="evidence-card"><div class="status-chip status-warn">找不到來源 ' + escapeHtml(tag) + '</div><div class="muted">這個 tag 不存在於本題來源。</div></div>';
+        return;
+      }
+
+      const docId = src.doc_id ?? src.doc ?? src.source_doc ?? '-';
+      const page = src.page ?? src.page_no ?? src.pageno ?? '-';
+      const snippet = src.snippet ?? src.text ?? src.quote ?? '沒有 snippet';
+      const imageBlock = renderImageIdBlock(src);
+
+      const extraKeys = Object.keys(src).filter(
+        k => ![
+          'doc_id', 'doc', 'source_doc',
+          'page', 'page_no', 'pageno',
+          'snippet', 'text', 'quote',
+          'image', 'images'
+        ].includes(k)
+      );
+
+      evidenceArea.innerHTML = `
+        <div class="evidence-card">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <div class="status-chip status-ok">來源 ${escapeHtml(tag)}</div>
+            <a href="${escapeHtml(buildViewerUrlFromSource(src))}" target="_blank" rel="noopener noreferrer">
+              <button type="button">開啟來源頁</button>
+            </a>
+          </div>
+          <div class="kv">
+            <div class="kv-row"><div class="kv-key">doc_id</div><div>${escapeHtml(String(docId))}</div></div>
+            <div class="kv-row"><div class="kv-key">page</div><div>${escapeHtml(String(page))}</div></div>
+          </div>
+          <div>
+            <div class="kv-key" style="margin-bottom:6px;">snippet</div>
+            <div class="snippet">${escapeHtml(String(snippet))}</div>
+          </div>
+
+          ${imageBlock}
+          ${extraKeys.length ? `
+            <div>
+              <div class="kv-key" style="margin-bottom:8px;">其他欄位</div>
+              <div class="kv">
+                ${extraKeys.map(k => `
+                  <div class="kv-row">
+                    <div class="kv-key">${escapeHtml(k)}</div>
+                    <div>${escapeHtml(safeJson(src[k]))}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function renderEvidencePlaceholder() {
+      evidenceArea.innerHTML = '<div class="evidence-empty">點來源標籤後，這裡會顯示對應內容。</div>';
+    }
+
+    function renderEvidenceDefaultForCurrentQuestion() {
+      const q = getCurrentQuestion();
+      if (!q) { renderEvidencePlaceholder(); return; }
+      const sourceMap = q.sources_map || {};
+      const tags = Object.keys(sourceMap);
+      if (!tags.length) { renderEvidencePlaceholder(); return; }
+      if (mode === 'test' && !testSubmitted) { renderEvidencePlaceholder(); return; }
+      renderEvidence(tags[0], sourceMap);
+    }
+
+    function normalizeOptions(options) {
+      if (!options) return { A: '', B: '', C: '', D: '' };
+      if (Array.isArray(options)) {
+        return { A: options[0] || '', B: options[1] || '', C: options[2] || '', D: options[3] || '' };
+      }
+      return { A: options.A || '', B: options.B || '', C: options.C || '', D: options.D || '' };
+    }
+
+    function deepCloneJson(value) {
+      try {
+        return JSON.parse(JSON.stringify(value));
+      } catch (err) {
+        return null;
+      }
+    }
+
+    function loadHistoryRecord(recordId) {
+      const history = loadHistory();
+      const record = history.find(item => item.record_id === recordId);
+      if (!record) return;
+
+      const snapshotQuestions = Array.isArray(record.exam_snapshot?.questions)
+        ? deepCloneJson(record.exam_snapshot.questions)
+        : null;
+      const snapshotAnswers = record.exam_snapshot?.answers && typeof record.exam_snapshot.answers === "object"
+        ? deepCloneJson(record.exam_snapshot.answers)
+        : null;
+
+      if (!snapshotQuestions || !snapshotAnswers) {
+        alert("這筆紀錄沒有可載入的答題快照。");
+        return;
+      }
+
+      examData = {
+        meta: {
+          subject: record.exam_meta?.subject || "-",
+          data_type: record.exam_meta?.data_type || "-",
+          chapter: record.exam_meta?.chapter || "-",
+          lang: record.exam_meta?.lang || "-",
+          created_at: record.exam_meta?.created_at || "-"
+        },
+        questions: deepCloneJson(snapshotQuestions)
+      };
+
+      currentFileName = record.exam_file || "history_record.json";
+      practiceQuestions = deepCloneJson(snapshotQuestions);
+      testQuestions = deepCloneJson(snapshotQuestions);
+
+      practiceIndex = 0;
+      testIndex = 0;
+      practiceAnswers = {};
+      testAnswers = snapshotAnswers || {};
+      testSubmitted = true;
+      mode = "test";
+      currentResultFilter = "all";
+      scoreSummaryCollapsed = false;
+
+      syncModeUI();
+      updateMeta();
+      renderQuestion();
+      renderResult();
+      renderEvidenceDefaultForCurrentQuestion();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function buildWrongQuestionRecords() {
+      return testQuestions
+        .map((q, idx) => {
+          const state = getAnswerState(q, idx);
+          const selected = state?.selected || "";
+          const correct = q?.answer || "";
+          if (!selected || selected === correct) return null;
+
+          return {
+            qid: getQuestionId(q, idx),
+            index: idx + 1,
+            topic: q?.topic || "",
+            question: q?.question || "",
+            selected: selected,
+            correct: correct,
+            sources_used: Array.isArray(q?.sources_used) ? q.sources_used : [],
+            sources_map: q?.sources_map && typeof q.sources_map === "object" ? q.sources_map : {}
+          };
+        })
+        .filter(Boolean);
+    }
+
+    function buildHistoryViewerUrl(record, src) {
+      const sourceDocId = String(
+        src?.doc_id ?? src?.doc ?? src?.source_doc ?? ""
+      ).trim();
+      const sourcePage = src?.page ?? src?.page_no ?? src?.pageno ?? "";
+      const viewerChapter =
+        sourceDocId || record?.exam_meta?.chapter || "";
+
+      const qs = new URLSearchParams({
+        subject: record?.exam_meta?.subject || "",
+        data_type: record?.exam_meta?.data_type || "",
+        chapter: viewerChapter,
+        doc_id: sourceDocId,
+        page: String(sourcePage ?? "")
+      });
+
+      return `viewer.html?${qs.toString()}`;
+    }
+
+    function getHistoryQuestionItems(record) {
+      const questions = Array.isArray(record?.exam_snapshot?.questions)
+        ? record.exam_snapshot.questions
+        : [];
+      const answers =
+        record?.exam_snapshot?.answers &&
+        typeof record.exam_snapshot.answers === "object"
+          ? record.exam_snapshot.answers
+          : {};
+
+      return questions.map((q, idx) => {
+        const qid = (q && q.id) || ("Q" + String(idx + 1).padStart(4, "0"));
+        const state = answers[qid] || {};
+        const selected = state.selected || "";
+        const correctAnswer = q?.answer || "";
+        const isCorrect = Boolean(selected) && selected === correctAnswer;
+
+        return {
+          q,
+          idx,
+          qid,
+          selected,
+          correctAnswer,
+          isCorrect,
+          isWrong: !isCorrect
+        };
+      });
+    }
+
+    function getHistoryViewState(recordId) {
+      if (!historyViewState[recordId]) {
+        historyViewState[recordId] = {
+          expanded: false,
+          filter: "all",
+          qidx: 0
+        };
+      }
+      return historyViewState[recordId];
+    }
+
+
+    function deleteHistoryRecord(recordId) {
+      const history = loadHistory().filter(item => item.record_id !== recordId);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      renderHistory();
+    }
+
+    function saveCurrentResultToHistory() {
+      if (!examData || !testQuestions.length) return;
+      const meta = examData.meta || {};
+      const prevMode = mode;
+      mode = 'test';
+      const summary = getScoringSummary();
+      mode = prevMode;
+      const rate = summary.total > 0 ? Number((summary.correctCount / summary.total).toFixed(4)) : 0;
+      const wrongQuestions = buildWrongQuestionRecords();
+
+      const record = {
+        record_id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        exam_file: currentFileName,
+        saved_at: new Date().toISOString(),
+        mode: 'test',
+        exam_meta: {
+          subject: meta.subject || '-',
+          data_type: meta.data_type || '-',
+          chapter: meta.chapter || '-',
+          lang: meta.lang || '-',
+          created_at: meta.created_at || '-'
+        },
+        score: {
+          correct: summary.correctCount,
+          total: summary.total,
+          rate: rate
+        },
+        wrong_count: wrongQuestions.length,
+        wrong_questions: wrongQuestions,
+        exam_snapshot: {
+          questions: deepCloneJson(testQuestions),
+          answers: deepCloneJson(testAnswers)
+        }
+      };
+
+      const history = loadHistory();
+      history.unshift(record);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 20)));
+      renderHistory();
+    }
+
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (err) {
+        console.error(err);
+        return [];
+      }
+    }
+
+    function renderHistory() {
+      const history = loadHistory();
+
+      if (!history.length) {
+        historyArea.innerHTML =
+          '<div class="muted">尚無本機歷史測驗紀錄。</div>';
+        return;
+      }
+
+      historyArea.innerHTML = history.map((item) => {
+        const recordId = item.record_id || "";
+        const view = getHistoryViewState(recordId);
+        const ratePct = Math.round((item.score?.rate || 0) * 100) + "%";
+        const allQuestions = getHistoryQuestionItems(item);
+        const wrongQuestions = allQuestions.filter((q) => q.isWrong);
+        const visibleQuestions =
+          view.filter === "wrong" ? wrongQuestions : allQuestions;
+
+        if (
+          visibleQuestions.length &&
+          !visibleQuestions.some((q) => q.idx === view.qidx)
+        ) {
+          view.qidx = visibleQuestions[0].idx;
+        }
+
+        const selectedItem =
+          visibleQuestions.find((q) => q.idx === view.qidx) ||
+          visibleQuestions[0] ||
+          null;
+
+        const sourceMap =
+          selectedItem?.q?.sources_map &&
+          typeof selectedItem.q.sources_map === "object"
+            ? selectedItem.q.sources_map
+            : {};
+        const sourceTags = Object.keys(sourceMap);
+
+        const questionOptions = visibleQuestions.length
+          ? visibleQuestions.map((questionItem) => {
+              const mark = questionItem.isCorrect ? "✓" : "✕";
+              const status = questionItem.isCorrect ? "答對" : "答錯";
+              return (
+                '<option value="' + questionItem.idx + '"' +
+                (questionItem.idx === view.qidx ? " selected" : "") +
+                ">" +
+                mark + " 第 " + (questionItem.idx + 1) + " 題｜" + status +
+                "</option>"
+              );
+            }).join("")
+          : '<option value="">沒有符合條件的題目</option>';
+
+        const detailHtml = selectedItem
+          ? `
+              <div class="history-question-detail">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <div class="status-chip ${
+                    selectedItem.isCorrect ? "status-ok" : "status-bad"
+                  }">
+                    ${selectedItem.isCorrect ? "答對" : "答錯"}
+                  </div>
+                  <strong>
+                    第 ${selectedItem.idx + 1} 題 /
+                    ${escapeHtml(selectedItem.qid)}
+                  </strong>
+                </div>
+
+                ${renderFullQuestionReview(
+                  selectedItem.q,
+                  selectedItem.selected,
+                  selectedItem.idx + 1,
+                  selectedItem.qid,
+                  item,
+                  true
+                )}
+
+                <div style="font-weight:800;margin-top:14px;">來源頁面</div>
+                ${
+                  sourceTags.length
+                    ? `<div class="history-source-links">${sourceTags.map((tag) => {
+                        const src = sourceMap[tag];
+                        const docId =
+                          src?.doc_id ?? src?.doc ?? src?.source_doc ?? "-";
+                        const page =
+                          src?.page ?? src?.page_no ?? src?.pageno ?? "-";
+                        return `
+                          <a
+                            class="history-source-link"
+                            href="${escapeHtml(buildHistoryViewerUrl(item, src))}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <button type="button">
+                              ${escapeHtml(tag)}｜${escapeHtml(String(docId))}/p${escapeHtml(String(page))}
+                            </button>
+                          </a>
+                        `;
+                      }).join("")}</div>`
+                    : '<div class="muted" style="margin-top:8px;">這題沒有來源資訊。</div>'
+                }
+              </div>
+            `
+          : '<div class="muted" style="margin-top:12px;">目前沒有符合篩選條件的題目。</div>';
+
+        return `
+          <div class="history-card" data-history-record="${escapeHtml(recordId)}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+              <div style="min-width:0;">
+                <div style="font-weight:800;font-size:16px;">
+                  ${escapeHtml(item.exam_meta?.subject || "-")} /
+                  ${escapeHtml(item.exam_meta?.chapter || "-")}
+                </div>
+                <small>${escapeHtml(item.exam_file || "-")}</small>
+              </div>
+
+              <div class="history-actions">
+                <button
+                  type="button"
+                  class="btn-primary history-load-btn"
+                  data-record-id="${escapeHtml(recordId)}"
+                  ${item.exam_snapshot?.questions ? "" : "disabled"}
+                >載入紀錄</button>
+
+                <button
+                  type="button"
+                  class="history-toggle-btn"
+                  data-record-id="${escapeHtml(recordId)}"
+                  ${allQuestions.length ? "" : "disabled"}
+                >${view.expanded ? "收合題目" : "查看每一題"}</button>
+
+                <button
+                  type="button"
+                  class="btn-danger history-delete-btn"
+                  data-record-id="${escapeHtml(recordId)}"
+                >刪除此筆</button>
+              </div>
+            </div>
+
+            <div class="history-summary-grid">
+              <div class="history-summary-item">
+                <div class="label">模式</div>
+                <div class="value">${escapeHtml(item.mode || "-")}</div>
+              </div>
+              <div class="history-summary-item">
+                <div class="label">分數</div>
+                <div class="value">
+                  ${escapeHtml(String(item.score?.correct ?? 0))} /
+                  ${escapeHtml(String(item.score?.total ?? 0))}
+                  （${escapeHtml(ratePct)}）
+                </div>
+              </div>
+              <div class="history-summary-item">
+                <div class="label">錯題數</div>
+                <div class="value">${wrongQuestions.length}</div>
+              </div>
+              <div class="history-summary-item">
+                <div class="label">作答時間</div>
+                <div class="value">${escapeHtml(formatTime(item.saved_at))}</div>
+              </div>
+            </div>
+
+            <div class="history-question-review" ${view.expanded ? "" : "hidden"}>
+              <div class="question-review-tools">
+                <div class="question-review-field">
+                  <label>查看題目</label>
+                  <select
+                    class="history-question-select"
+                    data-record-id="${escapeHtml(recordId)}"
+                    ${visibleQuestions.length ? "" : "disabled"}
+                  >
+                    ${questionOptions}
+                  </select>
+                </div>
+
+                <div class="question-filter-actions">
+                  <button
+                    type="button"
+                    class="filter-btn history-filter-btn ${
+                      view.filter === "all" ? "active" : ""
+                    }"
+                    data-record-id="${escapeHtml(recordId)}"
+                    data-filter="all"
+                  >全部題目</button>
+
+                  <button
+                    type="button"
+                    class="filter-btn history-filter-btn ${
+                      view.filter === "wrong" ? "active" : ""
+                    }"
+                    data-record-id="${escapeHtml(recordId)}"
+                    data-filter="wrong"
+                  >僅顯示錯題</button>
+                </div>
+              </div>
+
+              ${detailHtml}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      historyArea.querySelectorAll(".history-load-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const recordId = btn.dataset.recordId || "";
+          if (!recordId) return;
+          loadHistoryRecord(recordId);
+        });
+      });
+
+      historyArea.querySelectorAll(".history-toggle-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const recordId = btn.dataset.recordId || "";
+          if (!recordId) return;
+          const view = getHistoryViewState(recordId);
+          view.expanded = !view.expanded;
+          renderHistory();
+        });
+      });
+
+      historyArea.querySelectorAll(".history-question-select").forEach((select) => {
+        select.addEventListener("change", () => {
+          const recordId = select.dataset.recordId || "";
+          const idx = Number(select.value);
+          if (!recordId || Number.isNaN(idx)) return;
+          const view = getHistoryViewState(recordId);
+          view.qidx = idx;
+          renderHistory();
+        });
+      });
+
+      historyArea.querySelectorAll(".history-filter-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const recordId = btn.dataset.recordId || "";
+          const filter = btn.dataset.filter || "all";
+          if (!recordId) return;
+          const view = getHistoryViewState(recordId);
+          view.filter = filter === "wrong" ? "wrong" : "all";
+          renderHistory();
+        });
+      });
+
+      historyArea.querySelectorAll(".history-delete-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const recordId = btn.dataset.recordId || "";
+          if (!recordId) return;
+          if (!confirm("確定要刪除此筆歷史紀錄嗎？")) return;
+          delete historyViewState[recordId];
+          deleteHistoryRecord(recordId);
+        });
+      });
+    }
+
+    function formatTime(isoString) {
+      if (!isoString) return '-';
+      const d = new Date(isoString);
+      if (Number.isNaN(d.getTime())) return String(isoString);
+      return d.toLocaleString();
+    }
+
+    function shuffleArray(arr) {
+      const out = [...arr];
+      for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [out[i], out[j]] = [out[j], out[i]];
+      }
+      return out;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+
+    function normalizeImageCandidates(value) {
+      const out = [];
+
+      function walk(v) {
+        if (typeof v === "string") {
+          const s = v.trim();
+          if (s) out.push(s);
+          return;
+        }
+
+        if (Array.isArray(v)) {
+          v.forEach(walk);
+          return;
+        }
+
+        if (v && typeof v === "object") {
+          [
+            v.rel_path,
+            v.path,
+            v.file_name,
+            v.name,
+            v.image,
+            v.url,
+            v.image_url
+          ].forEach(walk);
+
+          if (Array.isArray(v.images)) {
+            walk(v.images);
+          }
+        }
+      }
+
+      walk(value);
+
+      return [...new Set(out)].filter(x =>
+        /\.(png|jpg|jpeg|gif|webp|bmp|svg)$/i.test(x) ||
+        x.startsWith("http://") ||
+        x.startsWith("https://") ||
+        x.includes("/")
+      );
+    }
+
+    async function resolveImageUrl(raw) {
+      const value = String(raw || "").trim();
+      if (!value) return null;
+
+      if (value.startsWith("http://") || value.startsWith("https://")) {
+        return value;
+      }
+
+      const tryResolve = async (paramName) => {
+        try {
+          const resp = await fetch(`${API_BASE}/api/resolve_image_url?${paramName}=${encodeURIComponent(value)}`);
+          const data = await resp.json();
+
+          if (!resp.ok || !data.ok) return null;
+
+          const rawUrl = data.url || data.image_url;
+          if (!rawUrl) return null;
+
+          if (String(rawUrl).startsWith("http://") || String(rawUrl).startsWith("https://")) {
+            return rawUrl;
+          }
+
+          return `${API_BASE}${rawUrl}`;
+        } catch (err) {
+          return null;
+        }
+      };
+
+      return await tryResolve("image") || await tryResolve("path");
+    }
+
+    async function renderResolvedImages(containerId, candidates) {
+      const box = document.getElementById(containerId);
+      if (!box) return;
+
+      const values = normalizeImageCandidates(candidates);
+      if (!values.length) {
+        box.innerHTML = "";
+        return;
+      }
+
+      box.innerHTML = '<span class="muted">圖片載入中...</span>';
+
+      const resolved = [];
+      for (const value of values) {
+        const url = await resolveImageUrl(value);
+        if (url) {
+          resolved.push({ value, url });
+        }
+      }
+
+      if (!resolved.length) {
+        box.innerHTML = '<span class="muted">圖片無法解析</span>';
+        return;
+      }
+
+      box.innerHTML = `
+        <div class="evidence-image-grid">
+          ${resolved.map((item) => `
+            <a class="evidence-image-link" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">
+              <div class="evidence-image-thumb">
+                <img src="${escapeHtml(item.url)}" alt="${escapeHtml(item.value)}" loading="lazy" />
+              </div>
+              <div class="evidence-image-cap">${escapeHtml(item.value)}</div>
+            </a>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderImageIdBlock(src) {
+      const values = normalizeImageCandidates([
+        src?.image,
+        src?.images
+      ]);
+
+      if (!values.length) {
+        return "";
+      }
+
+      const imageBlockId = "evidenceImagesBox_" + Math.random().toString(36).slice(2);
+
+      setTimeout(() => {
+        renderResolvedImages(imageBlockId, values);
+      }, 0);
+
+      return `
+        <div>
+          <div class="kv-key" style="margin-bottom:8px;">圖片</div>
+          <div id="${imageBlockId}" class="evidence-image-grid"><span class="muted">圖片載入中...</span></div>
+        </div>
+      `;
+    }
+
+    function safeJson(value) {
+      if (typeof value === 'string') return value;
+      try { return JSON.stringify(value, null, 2); }
+      catch { return String(value); }
+    }
+  </script>
+</body>
+</html>

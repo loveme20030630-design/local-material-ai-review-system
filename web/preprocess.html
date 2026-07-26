@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Preprocess</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #d9e0ea;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --shadow: 0 8px 24px rgba(15,23,42,.06);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+    .hero, .panel, .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero, .panel {
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      padding: 18px;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .files {
+      font-size: 13px;
+      color: var(--muted);
+      background: #fafcff;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      white-space: pre-wrap;
+      max-height: 140px;
+      overflow: auto;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    button:hover:not(:disabled) {
+      border-color: #93c5fd;
+      background: #f8fbff;
+    }
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+    .primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .info {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fafcff;
+      margin-top: 12px;
+      white-space: pre-wrap;
+    }
+
+    .result-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: #fafcff;
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .result-card.idle {
+      color: var(--muted);
+      border-style: dashed;
+    }
+    .result-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .result-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 800;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    .badge.ok {
+      color: #166534;
+      background: #ecfdf3;
+      border-color: #bbf7d0;
+    }
+    .badge.fail {
+      color: #991b1b;
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .badge.running {
+      color: #1d4ed8;
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .result-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+    }
+    .result-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .result-value {
+      font-weight: 800;
+      word-break: break-word;
+    }
+    .result-note {
+      color: var(--muted);
+      margin-top: 10px;
+    }
+    details {
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 800;
+    }
+    pre.debug-log {
+      margin: 10px 0 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: #0f172a;
+      color: #e5e7eb;
+      overflow: auto;
+      max-height: 260px;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <button id="backBtn">回到 Launcher</button>
+      <button id="backuploadBtn">回到 資料上傳頁</button>
+      <h1>前處理</h1>
+      <p>這頁會自動掃描 data 裡可前處理的科目。確認後直接執行 extract 與 make_chapter_jsonl。</p>
+    </section>
+
+    <section class="panel">
+      <div class="actions">
+        <button id="reloadBtn">重新掃描資料夾</button>
+      </div>
+      <div class="info" id="statusBox">載入中…</div>
+    </section>
+
+    <section class="grid" id="candidateGrid"></section>
+
+    <section class="panel">
+      <div class="actions">
+        <button id="toChapterBtn">前往章節選擇</button>
+      </div>
+      <div class="result-card idle" id="output">尚未執行前處理</div>
+    </section>
+  </div>
+
+  <script>
+    const API_BASE = `${window.location.protocol}//${window.location.hostname}:8000`;
+    const candidateGrid = document.getElementById("candidateGrid");
+    const statusBox = document.getElementById("statusBox");
+    const output = document.getElementById("output");
+    const reloadBtn = document.getElementById("reloadBtn");
+    const backBtn = document.getElementById("backBtn");
+    const backuploadBtn = document.getElementById("backuploadBtn");
+    const toChapterBtn = document.getElementById("toChapterBtn");
+
+    let lastSuccess = null;
+
+    backBtn.addEventListener("click", () => {
+      window.location.href = "launcher.html";
+    });
+
+    backuploadBtn.addEventListener("click", () => {
+      window.location.href = "upload.html";
+    });
+    
+    reloadBtn.addEventListener("click", loadCandidates);
+
+    toChapterBtn.addEventListener("click", () => {
+      window.location.href = "merge_json.html";
+    });
+
+    async function loadCandidates() {
+      statusBox.textContent = "掃描 data 中…";
+      candidateGrid.innerHTML = "";
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/preprocess_candidates`);
+        const data = await resp.json();
+        const candidates = Array.isArray(data.candidates) ? data.candidates : [];
+
+        statusBox.textContent = `找到 ${candidates.length} 個可前處理科目`;
+
+        if (!candidates.length) {
+          candidateGrid.innerHTML = `<div class="info">目前沒有可前處理資料夾。先去 upload.html 匯入教材。</div>`;
+          return;
+        }
+
+        candidateGrid.innerHTML = candidates.map((item, idx) => `
+          <div class="card">
+            <h3>${escapeHtml(item.folder_name)} / ${escapeHtml(item.data_type)}</h3>
+            <div class="meta">
+              檔案數：${item.file_count}<br>
+              資料夾：${escapeHtml(`data/${item.folder_name}/${item.data_type}`)}
+            </div>
+            <div class="files">${escapeHtml(item.files.join("\n"))}</div>
+            <div class="actions">
+              <button class="primary" data-idx="${idx}">執行前處理</button>
+            </div>
+          </div>
+        `).join("");
+
+        candidateGrid.querySelectorAll("button[data-idx]").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const idx = Number(btn.dataset.idx);
+            const item = candidates[idx];
+            await runPreprocess(item.folder_name, item.data_type);
+          });
+        });
+      } catch (err) {
+        statusBox.textContent = `載入失敗：${err.message || err}`;
+      }
+    }
+
+    async function runPreprocess(folder_name, data_type) {
+      output.className = "result-card";
+      output.innerHTML = renderRunning(folder_name, data_type);
+      toChapterBtn.disabled = true;
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/run_preprocess`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ folder_name, data_type }),
+        });
+
+        const data = await resp.json();
+
+        if (resp.ok && data.ok) {
+          lastSuccess = { folder_name, data_type };
+          toChapterBtn.disabled = false;
+          output.className = "result-card";
+          output.innerHTML = renderResult(data, true);
+        } else {
+          output.className = "result-card";
+          output.innerHTML = renderResult(data, false);
+        }
+      } catch (err) {
+        output.className = "result-card";
+        output.innerHTML = renderError(err);
+      }
+    }
+
+    function renderRunning(folder_name, data_type) {
+      return `
+        <div class="result-head">
+          <div class="result-title">教材前處理中</div>
+          <span class="badge running">執行中</span>
+        </div>
+        <div class="result-grid">
+          <div class="result-item">
+            <div class="result-label">科目名稱</div>
+            <div class="result-value">${escapeHtml(folder_name)}</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">教材格式</div>
+            <div class="result-value">${escapeHtml(data_type.toUpperCase())}</div>
+          </div>
+        </div>
+        <div class="result-note">系統正在進行文字擷取、圖片保存、OCR 辨識與 JSONL 整理，請稍候。</div>
+      `;
+    }
+
+    function renderResult(data, ok) {
+      const folder = data.folder_name || lastSuccess?.folder_name || "未提供";
+      const type = data.data_type || lastSuccess?.data_type || "未提供";
+      const stage = data.stage === "done" ? "完成" : (data.stage || "未提供");
+      const materialDir = data.material_dir ? toRelativePath(data.material_dir) : "未提供";
+      const title = ok ? "教材前處理完成" : "教材前處理未完成";
+      const badge = ok ? "完成" : "異常";
+      const badgeClass = ok ? "ok" : "fail";
+      const note = ok
+        ? "已完成教材文字擷取、圖片保存、OCR 辨識與 JSONL 整理。可前往章節選擇，建立複習範圍與查詢索引。"
+        : "前處理流程未正常完成，請展開詳細執行紀錄確認原因。";
+
+      return `
+        <div class="result-head">
+          <div class="result-title">${title}</div>
+          <span class="badge ${badgeClass}">${badge}</span>
+        </div>
+        <div class="result-grid">
+          <div class="result-item">
+            <div class="result-label">科目名稱</div>
+            <div class="result-value">${escapeHtml(folder)}</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">教材格式</div>
+            <div class="result-value">${escapeHtml(String(type).toUpperCase())}</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">處理階段</div>
+            <div class="result-value">${escapeHtml(stage)}</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">資料位置</div>
+            <div class="result-value">${escapeHtml(materialDir)}</div>
+          </div>
+        </div>
+        <div class="result-note">${escapeHtml(note)}</div>
+        ${renderDebugDetails(data)}
+      `;
+    }
+
+    function renderError(err) {
+      return `
+        <div class="result-head">
+          <div class="result-title">前處理失敗</div>
+          <span class="badge fail">錯誤</span>
+        </div>
+        <div class="result-note">${escapeHtml(err.message || err)}</div>
+      `;
+    }
+
+    function renderDebugDetails(data) {
+      const extractLog = mergeCommandLogs(data.extract);
+      const makeJsonlLog = mergeCommandLogs(data.make_chapter_jsonl || data.make_jsonl);
+      const blocks = [
+        renderLogBlock("文字擷取、圖片保存與 OCR 執行紀錄", extractLog),
+        renderLogBlock("JSONL 整理執行紀錄", makeJsonlLog),
+      ].join("");
+
+      if (!blocks.trim()) return "";
+
+      return `
+        <details>
+          <summary>詳細執行紀錄（除錯用）</summary>
+          ${blocks}
+        </details>
+      `;
+    }
+
+    function mergeCommandLogs(result) {
+      if (!result) return "";
+
+      const logs = [];
+      if (result.stdout) logs.push(result.stdout);
+      if (result.stderr) logs.push(`[stderr]\n${result.stderr}`);
+      return logs.join("\n\n");
+    }
+
+    function renderLogBlock(title, logText) {
+      if (!logText) return "";
+
+      return `
+        <div style="margin-top:12px;">
+          <h4 style="margin:0 0 8px;">${escapeHtml(title)}</h4>
+          <pre class="debug-log">${escapeHtml(logText)}</pre>
+        </div>
+      `;
+    }
+
+
+    function toRelativePath(v) {
+      const text = String(v);
+      const marker = "\\data\\";
+      const idx = text.indexOf(marker);
+      if (idx >= 0) return `data${text.slice(idx + marker.length - 1)}`;
+      return text.replaceAll("\\", "/");
+    }
+
+    function sanitizeDebugData(data) {
+      const clone = JSON.parse(JSON.stringify(data || {}));
+      if (clone.material_dir) clone.material_dir = toRelativePath(clone.material_dir);
+      if (clone.extract?.command) clone.extract.command = "[已隱藏執行路徑]";
+      if (clone.make_jsonl?.command) clone.make_jsonl.command = "[已隱藏執行路徑]";
+      if (clone.make_chapter_jsonl?.command) clone.make_chapter_jsonl.command = "[已隱藏執行路徑]";
+      return clone;
+    }
+
+    function escapeHtml(v) {
+      return String(v)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    loadCandidates();
+  </script>
+</body>
+</html>

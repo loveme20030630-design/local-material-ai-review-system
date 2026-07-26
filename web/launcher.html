@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>教材複習系統入口</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #d9e0ea;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --shadow: 0 8px 24px rgba(15,23,42,.06);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100vw;
+      max-width: 100vw;
+      min-height: 100vh;
+      overflow-x: hidden;
+      touch-action: pan-y;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      letter-spacing: .04em;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 32px;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+      max-width: 860px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0 0 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .status {
+      display: inline-flex;
+      width: fit-content;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 20px;
+      word-break: break-word;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .desc {
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 14px;
+      min-height: 74px;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: .15s ease;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: #93c5fd;
+      background: #f8fbff;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .primary:hover:not(:disabled) {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+    }
+
+    .secondary {
+      color: var(--muted);
+    }
+
+    .mobile-note {
+      display: none;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fafcff;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 1024px) {
+      .page {
+        width: 100vw;
+        max-width: 100vw;
+        padding: 14px 10px 28px;
+      }
+
+      .hero {
+        padding: 18px;
+        border-radius: 18px;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      .card {
+        border-radius: 14px;
+        padding: 16px;
+      }
+
+      .desc {
+        min-height: auto;
+        font-size: 15px;
+      }
+
+      .actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      button {
+        width: 100%;
+        max-width: none;
+        font-size: 16px;
+      }
+
+      body.mobile-client .admin-only {
+        display: none;
+      }
+
+      body.mobile-client .mobile-note {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="eyebrow">LEARNING WORKFLOW</div>
+      <h1>複習系統入口</h1>
+      <p>
+        先建立教材，再建立複習範圍，最後進行查詢與練習。
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-title">使用流程</h2>
+      <div class="mobile-note">手機端只顯示查詢與練習功能；教材匯入、前處理與建立複習範圍請在電腦端操作。</div>
+
+      <div class="grid">
+        <article class="card admin-only">
+          <span class="status">第一步</span>
+          <h2>匯入教材</h2>
+          <div class="meta">upload.html</div>
+          <div class="desc">
+            建立科目資料夾、選擇 PPT / PDF 格式，並上傳教材檔案。
+          </div>
+          <div class="actions">
+            <button class="primary" id="openUploadBtn" type="button">進入</button>
+          </div>
+        </article>
+
+        <article class="card admin-only">
+          <span class="status">第二步</span>
+          <h2>教材前處理</h2>
+          <div class="meta">preprocess.html</div>
+          <div class="desc">
+            擷取文字、圖片與 OCR，建立章節 JSONL，作為後續複習範圍與查詢資料來源。
+          </div>
+          <div class="actions">
+            <button class="primary" id="openPreprocessBtn" type="button">進入</button>
+          </div>
+        </article>
+
+        <article class="card admin-only">
+          <span class="status">第三步</span>
+          <h2>選擇複習範圍</h2>
+          <div class="meta">merge_json.html</div>
+          <div class="desc">
+            選擇單一章節、連續章節或多個章節，合併資料並建立向量索引。
+          </div>
+          <div class="actions">
+            <button class="primary" id="openMergeBtn" type="button">進入</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="status">第四步</span>
+          <h2>關鍵字整理與內容查詢</h2>
+          <div class="meta">search.html</div>
+          <div class="desc">
+            在已建立的複習範圍內生成關鍵字、查詢段落，並整理教材限定答案。
+          </div>
+          <div class="actions">
+            <button class="primary" id="openSearchBtn" type="button">進入</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="status">第五步</span>
+          <h2>選擇題練習</h2>
+          <div class="meta">practice_and_test.html</div>
+          <div class="desc">
+            根據複習範圍生成選擇題，進行練習或測驗並查看解析與來源。
+          </div>
+          <div class="actions">
+            <button class="primary" id="openExamBtn" type="button">進入</button>
+          </div>
+        </article>
+</div>
+    </section>
+  </div>
+
+  <script>
+    const isMobileClient = window.matchMedia("(max-width: 768px)").matches;
+    document.body.classList.toggle("mobile-client", isMobileClient);
+
+document.getElementById("openUploadBtn").addEventListener("click", () => {
+      window.location.href = "upload.html";
+    });
+
+    document.getElementById("openPreprocessBtn").addEventListener("click", () => {
+      window.location.href = "preprocess.html";
+    });
+
+    document.getElementById("openMergeBtn").addEventListener("click", () => {
+      window.location.href = "merge_json.html";
+    });
+
+    document.getElementById("openSearchBtn").addEventListener("click", () => {
+      window.location.href = "search.html";
+    });
+
+    document.getElementById("openExamBtn").addEventListener("click", () => {
+      window.location.href = "practice_and_test.html";
+    });
+</script>
+</body>
+</html>

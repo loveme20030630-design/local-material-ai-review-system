@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>建立複習範圍</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #d9e0ea;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --ok: #15803d;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --shadow: 0 8px 24px rgba(15,23,42,.06);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+    .hero, .panel, .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero, .panel {
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    .hero h1 { margin: 12px 0 10px; font-size: 28px; }
+    .hero p { margin: 0; color: var(--muted); line-height: 1.7; }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(340px, .85fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .field { display: grid; gap: 6px; margin-bottom: 12px; }
+    .field label { font-size: 13px; color: var(--muted); font-weight: 700; }
+    select, input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      font: inherit;
+    }
+    button:hover:not(:disabled) { border-color: #93c5fd; background: #f8fbff; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .mode-btn.active, .pick-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .info {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fafcff;
+      margin-top: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+    .status-ok { border-color: #86efac; background: #f0fdf4; color: var(--ok); }
+    .status-warn { border-color: #fcd34d; background: #fffbeb; color: var(--warn); }
+    .status-bad { border-color: #fecaca; background: #fef2f2; color: var(--bad); }
+    .chapter-list { display: grid; gap: 10px; max-height: 520px; overflow: auto; padding-right: 2px; }
+    .chapter-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      min-width: 0;
+    }
+    .chapter-meta { display: grid; gap: 4px; min-width: 0; }
+    .chapter-index { font-size: 12px; color: var(--muted); font-weight: 700; }
+    .chapter-name { font-size: 14px; color: var(--text); font-weight: 700; word-break: break-word; overflow-wrap: anywhere; }
+    .summary-grid { display: grid; gap: 10px; }
+    .summary-row { display: grid; grid-template-columns: 92px 1fr; gap: 10px; align-items: start; font-size: 14px; }
+    .summary-key { color: var(--muted); font-weight: 800; }
+    .summary-value { word-break: break-word; overflow-wrap: anywhere; }
+    .hint-list { margin: 10px 0 0; padding-left: 20px; color: var(--muted); line-height: 1.7; font-size: 14px; }
+    .technical-output { display: none; margin-top: 12px; }
+    .technical-output.open { display: block; }
+    .output-pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      max-height: 280px;
+      overflow: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      background: #0f172a;
+      color: #e5e7eb;
+      border-radius: 14px;
+      padding: 12px;
+    }
+    @media (max-width: 1024px) {
+      html, body { width: 100vw; max-width: 100vw; overflow-x: hidden; touch-action: pan-y; }
+      .page { width: 100vw; max-width: 100vw; padding: 14px 10px 28px; }
+      .hero, .panel { padding: 16px; margin-bottom: 12px; border-radius: 14px; }
+      .hero h1 { font-size: 24px; }
+      .hero p, .info, .hint-list { font-size: 15px; line-height: 1.8; }
+      .grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+      .actions { flex-direction: column; align-items: stretch; }
+      button, select, input { width: 100%; max-width: none; font-size: 16px; }
+      .chapter-list { max-height: 340px; }
+      .chapter-item { align-items: stretch; flex-direction: column; }
+      .pick-btn { width: 100%; }
+      .summary-row { grid-template-columns: 78px 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="actions" style="margin-top:0;margin-bottom:12px;">
+        <button id="backLauncherBtn" type="button">回到 Launcher</button>
+        <button id="backPreprocessBtn" type="button">回到前處理</button>
+      </div>
+      <h1>建立複習範圍</h1>
+      <p>選擇要複習的章節，系統會合併教材資料並建立查詢索引。完成後可直接進入查詢 / 關鍵字或選擇題練習。</p>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h3>選擇教材與範圍</h3>
+
+        <div class="field">
+          <label for="subjectSelect">科目</label>
+          <select id="subjectSelect"></select>
+        </div>
+
+        <div class="field">
+          <label for="dataTypeSelect">格式</label>
+          <select id="dataTypeSelect" style="display:none;"></select>
+          <input id="dataTypeInput" type="text" readonly />
+        </div>
+
+        <div class="actions">
+          <button class="mode-btn active" id="rangeModeBtn" type="button">連續章節</button>
+          <button class="mode-btn" id="pickModeBtn" type="button">多章節選取</button>
+          <button id="clearPickBtn" type="button">清除選取</button>
+        </div>
+
+        <div class="info" id="statusBox">載入中…</div>
+        <div class="info" id="selectionBox">目前尚未選擇複習範圍</div>
+
+        <div class="chapter-list" id="chapterList"></div>
+      </div>
+
+      <div class="panel">
+        <h3>建立結果</h3>
+        <div class="summary-grid">
+          <div class="summary-row"><div class="summary-key">科目</div><div class="summary-value" id="summarySubject">-</div></div>
+          <div class="summary-row"><div class="summary-key">格式</div><div class="summary-value" id="summaryType">-</div></div>
+          <div class="summary-row"><div class="summary-key">範圍</div><div class="summary-value" id="summaryRange">-</div></div>
+          <div class="summary-row"><div class="summary-key">索引</div><div class="summary-value" id="summaryIndex">尚未建立</div></div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="runMergeBtn" type="button">建立複習範圍</button>
+        </div>
+
+        <ul class="hint-list">
+          <li>連續章節：先選起點，再選終點。</li>
+          <li>多章節選取：可自由勾選不連續章節。</li>
+          <li>建立完成後，查詢與測驗會使用這個複習範圍。</li>
+        </ul>
+
+        <div class="actions">
+          <button id="toSearchBtn" type="button" disabled>前往查詢 / 關鍵字</button>
+          <button id="toExamBtn" type="button" disabled>前往選擇題練習</button>
+          <button id="toggleTechnicalBtn" type="button">顯示技術細節</button>
+        </div>
+
+        <div class="info" id="output">尚未建立複習範圍。</div>
+        <div class="technical-output" id="technicalOutputWrap">
+          <pre class="output-pre" id="technicalOutput">尚無技術輸出。</pre>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const API_BASE = (() => {
+      const host = window.location.hostname;
+      if (!host) return "http://127.0.0.1:8000";
+      return `${window.location.protocol}//${host}:8000`;
+    })();
+
+    const params = new URLSearchParams(window.location.search);
+    const subjectSelect = document.getElementById("subjectSelect");
+    const dataTypeSelect = document.getElementById("dataTypeSelect");
+    const dataTypeInput = document.getElementById("dataTypeInput");
+    const statusBox = document.getElementById("statusBox");
+    const selectionBox = document.getElementById("selectionBox");
+    const chapterList = document.getElementById("chapterList");
+    const output = document.getElementById("output");
+    const technicalOutput = document.getElementById("technicalOutput");
+    const technicalOutputWrap = document.getElementById("technicalOutputWrap");
+    const toggleTechnicalBtn = document.getElementById("toggleTechnicalBtn");
+    const backLauncherBtn = document.getElementById("backLauncherBtn");
+    const clearPickBtn = document.getElementById("clearPickBtn");
+    const runMergeBtn = document.getElementById("runMergeBtn");
+    const toExamBtn = document.getElementById("toExamBtn");
+    const toSearchBtn = document.getElementById("toSearchBtn");
+    const rangeModeBtn = document.getElementById("rangeModeBtn");
+    const pickModeBtn = document.getElementById("pickModeBtn");
+    const backPreprocessBtn = document.getElementById("backPreprocessBtn");
+    const summarySubject = document.getElementById("summarySubject");
+    const summaryType = document.getElementById("summaryType");
+    const summaryRange = document.getElementById("summaryRange");
+    const summaryIndex = document.getElementById("summaryIndex");
+
+    let subjects = [];
+    let chapters = [];
+    let mode = "range";
+    let rangeStart = null;
+    let rangeEnd = null;
+    let selectedPicks = new Set();
+    let builtChapter = "";
+    let builtSubject = "";
+    let builtType = "";
+
+    const presetFolder = params.get("folder_name") || "";
+    const presetType = params.get("data_type") || "";
+
+    backLauncherBtn.addEventListener("click", () => {
+      window.location.href = "launcher.html";
+    });
+
+    backPreprocessBtn.addEventListener("click", () => {
+      window.location.href = "preprocess.html";
+    });
+
+    toggleTechnicalBtn.addEventListener("click", () => {
+      technicalOutputWrap.classList.toggle("open");
+      toggleTechnicalBtn.textContent = technicalOutputWrap.classList.contains("open") ? "隱藏技術細節" : "顯示技術細節";
+    });
+
+    rangeModeBtn.addEventListener("click", () => {
+      mode = "range";
+      selectedPicks.clear();
+      rangeStart = null;
+      rangeEnd = null;
+      builtChapter = "";
+      renderAllSelectionState();
+    });
+
+    pickModeBtn.addEventListener("click", () => {
+      mode = "pick";
+      rangeStart = null;
+      rangeEnd = null;
+      selectedPicks.clear();
+      builtChapter = "";
+      renderAllSelectionState();
+    });
+
+    clearPickBtn.addEventListener("click", () => {
+      rangeStart = null;
+      rangeEnd = null;
+      selectedPicks.clear();
+      builtChapter = "";
+      renderAllSelectionState();
+    });
+
+    toExamBtn.addEventListener("click", () => {
+      const q = buildDownstreamQuery();
+      window.location.href = `practice_and_test.html?${q.toString()}`;
+    });
+
+    toSearchBtn.addEventListener("click", () => {
+      const q = buildDownstreamQuery();
+      window.location.href = `search.html?${q.toString()}`;
+    });
+
+    subjectSelect.addEventListener("change", async () => {
+      applySubjectType();
+      resetSelection();
+      await loadChapterCandidates();
+    });
+
+    dataTypeSelect.addEventListener("change", async () => {
+      dataTypeInput.value = dataTypeSelect.value;
+      resetSelection();
+      await loadChapterCandidates();
+    });
+
+    function getCurrentDataType() {
+      return (dataTypeSelect.style.display !== "none" ? dataTypeSelect.value : dataTypeInput.value).trim();
+    }
+
+    function buildDownstreamQuery() {
+      return new URLSearchParams({
+        subject: builtSubject || subjectSelect.value,
+        data_type: builtType || getCurrentDataType(),
+        chapter: builtChapter,
+      });
+    }
+
+    function setOutput(message, kind = "") {
+      output.textContent = message;
+      output.classList.remove("status-ok", "status-warn", "status-bad");
+      if (kind) output.classList.add(kind);
+    }
+
+    function setTechnical(data) {
+      technicalOutput.textContent = buildTechnicalText(data);
+    }
+
+    function buildTechnicalText(data) {
+      if (typeof data === "string") return normalizeLogText(data);
+      if (!data || typeof data !== "object") return "尚無技術輸出。";
+
+      const lines = [];
+      lines.push("建立結果摘要");
+      lines.push(`狀態：${data.ok === true ? "完成" : "異常或未完成"}`);
+      if (data.stage) lines.push(`階段：${data.stage}`);
+      if (data.folder_name) lines.push(`科目：${data.folder_name}`);
+      if (data.data_type) lines.push(`格式：${String(data.data_type).toUpperCase()}`);
+      if (data.range_str) lines.push(`連續章節：${data.range_str}`);
+      if (data.pick_str) lines.push(`多章節：${data.pick_str}`);
+      if (data.merged_jsonl_path) lines.push(`合併資料：${toDisplayPath(data.merged_jsonl_path)}`);
+      if (data.index_dir) lines.push(`索引位置：${toDisplayPath(data.index_dir)}`);
+
+      const logs = [];
+      collectCommandLogs(data, "", logs, new Set());
+
+      if (!logs.length) {
+        lines.push("");
+        lines.push("沒有可顯示的 stdout 或 stderr 紀錄。");
+        return lines.join("\n");
+      }
+
+      logs.forEach((log, idx) => {
+        lines.push("");
+        lines.push(`===== ${log.title || `執行紀錄 ${idx + 1}`} =====`);
+        if (log.returncode !== undefined && log.returncode !== null) {
+          lines.push(`returncode：${log.returncode}`);
+        }
+        if (log.stdout) {
+          lines.push("[stdout]");
+          lines.push(normalizeLogText(log.stdout));
+        }
+        if (log.stderr) {
+          lines.push("[stderr]");
+          lines.push(normalizeLogText(log.stderr));
+        }
+      });
+
+      return lines.join("\n");
+    }
+
+    function collectCommandLogs(value, label, out, seen) {
+      if (!value || typeof value !== "object") return;
+      if (seen.has(value)) return;
+      seen.add(value);
+
+      const hasCommandOutput =
+        Object.prototype.hasOwnProperty.call(value, "stdout") ||
+        Object.prototype.hasOwnProperty.call(value, "stderr") ||
+        Object.prototype.hasOwnProperty.call(value, "returncode");
+
+      if (hasCommandOutput) {
+        out.push({
+          title: formatLogTitle(label),
+          stdout: value.stdout || "",
+          stderr: value.stderr || "",
+          returncode: value.returncode,
+        });
+        return;
+      }
+
+      Object.entries(value).forEach(([key, child]) => {
+        if (child && typeof child === "object") {
+          collectCommandLogs(child, key, out, seen);
+        }
+      });
+    }
+
+    function formatLogTitle(key) {
+      const k = String(key || "").toLowerCase();
+      if (k.includes("merge")) return "複習範圍合併執行紀錄";
+      if (k.includes("index") || k.includes("faiss")) return "查詢索引建立執行紀錄";
+      if (k.includes("jsonl")) return "JSONL 整理執行紀錄";
+      if (k.includes("extract") || k.includes("ocr")) return "文字擷取、圖片保存與 OCR 執行紀錄";
+      return key ? `${key} 執行紀錄` : "執行紀錄";
+    }
+
+    function normalizeLogText(text) {
+      let out = String(text ?? "");
+      out = out.replaceAll("\\r\\n", "\n");
+      out = out.replaceAll("\\n", "\n");
+      out = out.replaceAll("\\t", "\t");
+      out = out.replaceAll("\r\n", "\n");
+      out = out.replaceAll("\r", "\n");
+      out = out.replace(/C:\\Users\\[^\\\s"]+/g, "[使用者路徑]");
+      out = out.replaceAll("D:\\LLM_Project", "[專案資料夾]");
+      return out.trim() || "(無輸出)";
+    }
+
+    function toDisplayPath(v) {
+      const text = String(v || "");
+      const marker = "\\data\\";
+      const idx = text.indexOf(marker);
+      if (idx >= 0) return `data${text.slice(idx + marker.length - 1)}`;
+      return text.replaceAll("D:\\LLM_Project", "[專案資料夾]").replaceAll("\\", "/");
+    }
+
+    function renderModeButtons() {
+      rangeModeBtn.classList.toggle("active", mode === "range");
+      pickModeBtn.classList.toggle("active", mode === "pick");
+    }
+
+    function resetSelection() {
+      rangeStart = null;
+      rangeEnd = null;
+      selectedPicks.clear();
+      builtChapter = "";
+      builtSubject = "";
+      builtType = "";
+      toExamBtn.disabled = true;
+      toSearchBtn.disabled = true;
+      summaryIndex.textContent = "尚未建立";
+      renderSelectionBox();
+      renderSummary();
+    }
+
+    function renderAllSelectionState() {
+      toExamBtn.disabled = true;
+      toSearchBtn.disabled = true;
+      summaryIndex.textContent = "尚未建立";
+      renderModeButtons();
+      renderSelectionBox();
+      renderSummary();
+      renderChapterButtons();
+    }
+
+    function renderDataTypeControl(types, selectedType) {
+      const available = Array.isArray(types) ? types : [];
+      if (available.length <= 1) {
+        dataTypeSelect.style.display = "none";
+        dataTypeInput.style.display = "block";
+        dataTypeInput.value = selectedType || available[0] || "";
+        dataTypeInput.placeholder = "";
+        return;
+      }
+
+      dataTypeInput.style.display = "none";
+      dataTypeSelect.style.display = "block";
+      dataTypeSelect.innerHTML = available.map(t => {
+        const selected = t === selectedType ? "selected" : "";
+        return `<option value="${escapeHtml(t)}" ${selected}>${escapeHtml(t)}</option>`;
+      }).join("");
+      dataTypeSelect.value = selectedType || available[0] || "";
+    }
+
+    function applySubjectType() {
+      const subject = subjectSelect.value;
+      const item = subjects.find(x => x.folder_name === subject);
+      if (!item) {
+        dataTypeInput.value = "";
+        dataTypeSelect.innerHTML = "";
+        dataTypeSelect.style.display = "none";
+        dataTypeInput.style.display = "block";
+        return;
+      }
+
+      let selectedType = "";
+      if (presetFolder === subject && presetType && item.available_types.includes(presetType)) {
+        selectedType = presetType;
+      } else {
+        selectedType = item.available_types[0] || "";
+      }
+      renderDataTypeControl(item.available_types, selectedType);
+      renderSummary();
+    }
+
+    function renderSubjectOptions() {
+      subjectSelect.innerHTML = subjects.map(s => {
+        const selected = presetFolder && presetFolder === s.folder_name ? "selected" : "";
+        return `<option value="${escapeHtml(s.folder_name)}" ${selected}>${escapeHtml(s.folder_name)}</option>`;
+      }).join("");
+    }
+
+    function getCurrentRangeIndices() {
+      if (rangeStart == null || rangeEnd == null) return [];
+      const a = Math.min(rangeStart, rangeEnd);
+      const b = Math.max(rangeStart, rangeEnd);
+      const out = [];
+      for (let i = a; i <= b; i++) out.push(i);
+      return out;
+    }
+
+    function getCurrentRangeString() {
+      if (rangeStart == null || rangeEnd == null) return "";
+      const a = Math.min(rangeStart, rangeEnd);
+      const b = Math.max(rangeStart, rangeEnd);
+      return `${a}-${b}`;
+    }
+
+    function getCurrentPickString() {
+      return [...selectedPicks].sort((a, b) => a - b).join(",");
+    }
+
+    function getSelectionLabel() {
+      const rangeStr = mode === "range" ? getCurrentRangeString() : "";
+      const pickStr = mode === "pick" ? getCurrentPickString() : "";
+      if (rangeStr) return `連續章節：${rangeStr}`;
+      if (pickStr) return `多章節：${pickStr}`;
+      return "尚未選擇";
+    }
+
+    function isSelectedIndex(idx) {
+      if (mode === "range") return getCurrentRangeIndices().includes(idx);
+      return selectedPicks.has(idx);
+    }
+
+    function renderSelectionBox() {
+      if (mode === "range") {
+        if (rangeStart != null && rangeEnd == null) {
+          selectionBox.textContent = `連續章節：已選起點 ${rangeStart}，請再選終點。`;
+          return;
+        }
+        const rangeStr = getCurrentRangeString();
+        selectionBox.textContent = rangeStr ? `目前複習範圍：${rangeStr}` : "連續章節：尚未選擇。";
+        return;
+      }
+      const pickStr = getCurrentPickString();
+      selectionBox.textContent = pickStr ? `目前複習範圍：${pickStr}` : "多章節選取：尚未選擇。";
+    }
+
+    function renderSummary() {
+      summarySubject.textContent = subjectSelect.value || "-";
+      summaryType.textContent = getCurrentDataType() || "-";
+      summaryRange.textContent = getSelectionLabel();
+    }
+
+    function renderChapterButtons() {
+      if (!chapters.length) {
+        chapterList.innerHTML = `<div class="info">目前沒有可建立複習範圍的章節。</div>`;
+        return;
+      }
+
+      chapterList.innerHTML = chapters.map(ch => {
+        const active = isSelectedIndex(ch.index) ? "active" : "";
+        return `
+          <div class="chapter-item">
+            <div class="chapter-meta">
+              <div class="chapter-index">章節 ${ch.index}</div>
+              <div class="chapter-name">${escapeHtml(ch.name)}</div>
+            </div>
+            <button type="button" class="pick-btn ${active}" data-index="${ch.index}">
+              ${active ? "已選" : "選擇"}
+            </button>
+          </div>
+        `;
+      }).join("");
+
+      chapterList.querySelectorAll(".pick-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const idx = Number(btn.dataset.index);
+          if (mode === "range") {
+            if (rangeStart == null || (rangeStart != null && rangeEnd != null)) {
+              rangeStart = idx;
+              rangeEnd = null;
+            } else {
+              rangeEnd = idx;
+            }
+          } else {
+            if (selectedPicks.has(idx)) selectedPicks.delete(idx);
+            else selectedPicks.add(idx);
+          }
+          builtChapter = "";
+          renderAllSelectionState();
+        });
+      });
+    }
+
+    async function loadSubjects() {
+      statusBox.textContent = "載入科目中…";
+      try {
+        const resp = await fetch(`${API_BASE}/api/merge_subjects`);
+        const data = await resp.json();
+        subjects = Array.isArray(data.subjects) ? data.subjects : [];
+
+        if (!subjects.length) {
+          statusBox.textContent = "目前沒有可建立複習範圍的科目。請先完成教材前處理。";
+          subjectSelect.innerHTML = "";
+          dataTypeInput.value = "";
+          chapterList.innerHTML = "";
+          return;
+        }
+
+        renderSubjectOptions();
+        applySubjectType();
+        await loadChapterCandidates();
+      } catch (err) {
+        statusBox.textContent = `載入科目失敗：${err.message || err}`;
+      }
+    }
+
+    async function loadChapterCandidates() {
+      const folder_name = subjectSelect.value.trim();
+      const data_type = getCurrentDataType();
+      resetSelection();
+      chapterList.innerHTML = "";
+
+      if (!folder_name || !data_type) {
+        statusBox.textContent = "缺少科目或格式。";
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/merge_candidates?folder_name=${encodeURIComponent(folder_name)}&data_type=${encodeURIComponent(data_type)}`);
+        const data = await resp.json();
+        chapters = Array.isArray(data.chapters) ? data.chapters : [];
+        statusBox.textContent = `找到 ${chapters.length} 個可選章節。`;
+        renderChapterButtons();
+        renderSummary();
+      } catch (err) {
+        statusBox.textContent = `載入章節失敗：${err.message || err}`;
+      }
+    }
+
+    runMergeBtn.addEventListener("click", async () => {
+      const folder_name = subjectSelect.value.trim();
+      const data_type = getCurrentDataType();
+      const range_str = mode === "range" ? getCurrentRangeString() : "";
+      const pick_str = mode === "pick" ? getCurrentPickString() : "";
+
+      if (!folder_name || !data_type) {
+        setOutput("缺少科目或格式。", "status-bad");
+        return;
+      }
+      if ((!range_str && !pick_str) || (range_str && pick_str)) {
+        setOutput("請先完成連續章節或多章節選取。", "status-warn");
+        return;
+      }
+
+      runMergeBtn.disabled = true;
+      toExamBtn.disabled = true;
+      toSearchBtn.disabled = true;
+      builtChapter = "";
+      builtSubject = "";
+      builtType = "";
+      summaryIndex.textContent = "建立中…";
+      setOutput("建立複習範圍中，請等待 merge 與 index 完成。", "status-warn");
+      setTechnical("執行中…");
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/run_merge`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            folder_name,
+            data_type,
+            range_str: range_str || null,
+            pick_str: pick_str || null,
+          }),
+        });
+        const data = await resp.json();
+        setTechnical(data);
+
+        if (resp.ok && data.ok) {
+          builtSubject = folder_name;
+          builtType = data_type;
+          builtChapter = inferBuiltChapter(data) || inferBuiltChapterFromSelection();
+          summaryIndex.textContent = builtChapter || "已建立";
+          setOutput(`複習範圍建立完成。\n範圍：${getSelectionLabel()}\n索引名稱：${builtChapter || "-"}\n可前往查詢或選擇題練習。`, "status-ok");
+          toExamBtn.disabled = !builtChapter;
+          toSearchBtn.disabled = !builtChapter;
+        } else {
+          const detail = data?.detail || data?.stage || "建立失敗";
+          summaryIndex.textContent = "建立失敗";
+          setOutput(`建立失敗：${detail}\n可展開技術細節查看錯誤。`, "status-bad");
+        }
+      } catch (err) {
+        summaryIndex.textContent = "建立失敗";
+        setTechnical(String(err.message || err));
+        setOutput(`建立失敗：${err.message || err}`, "status-bad");
+      } finally {
+        runMergeBtn.disabled = false;
+      }
+    });
+
+    function inferBuiltChapter(data) {
+      const raw = String(data?.index_dir || data?.merged_jsonl_path || "").trim();
+      if (!raw) return "";
+      const normalized = raw.replaceAll("\\", "/");
+      const base = normalized.split("/").filter(Boolean).pop() || "";
+      return base.replace(/\.jsonl$/i, "");
+    }
+
+    function inferBuiltChapterFromSelection() {
+      const rangeStr = mode === "range" ? getCurrentRangeString() : "";
+      const pickStr = mode === "pick" ? getCurrentPickString() : "";
+      if (rangeStr) return rangeStr;
+      if (pickStr) return pickStr.replaceAll(",", "_");
+      return "";
+    }
+
+    function escapeHtml(v) {
+      return String(v)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    renderModeButtons();
+    loadSubjects();
+  </script>
+</body>
+</html>

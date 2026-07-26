@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Editor
+.vscode/
+
+# Private data and generated content
+data/*
+!data/.gitkeep
+vector_db/
+artifacts/
+terminal/
+ppt.log/
+
+# Third-party software
+poppler/
+Tesseract OCR/
+
+# Logs and secrets
+*.log
+.env
+.env.*
+*.key
+
+# Model and index files
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+*.faiss
+*.index
+
+# Office working documents
+*.doc
+*.docx
+
+# Windows
+Thumbs.db
+Desktop.ini

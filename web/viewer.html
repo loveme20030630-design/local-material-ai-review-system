@@ -1,0 +1,1051 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>教材頁面</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #d9e0ea;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --shadow: 0 8px 24px rgba(15,23,42,.06);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    select, input {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      max-width: 260px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: #93c5fd;
+      background: #f8fbff;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .layout {
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 320px 280px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .field select,
+    .field input {
+      width: 100%;
+      max-width: none;
+    }
+
+    .info {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fafcff;
+      margin-top: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .chapter-list {
+      display: grid;
+      gap: 8px;
+      max-height: calc(100vh - 180px);
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .chapter-btn {
+      width: 100%;
+      text-align: left;
+      display: grid;
+      gap: 4px;
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+
+    .chapter-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .chapter-name {
+      font-size: 14px;
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    .chapter-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .chapter-btn.active .chapter-sub {
+      color: rgba(255,255,255,.85);
+    }
+
+    .page-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+      gap: 8px;
+      max-height: 320px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .page-btn {
+      padding: 9px 8px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .page-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .page-btn.has-ocr {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+    }
+
+    .page-btn.has-ocr.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .image-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .image-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .page-image {
+      width: 100%;
+      max-height: 760px;
+      object-fit: contain;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .cap {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+
+    .section {
+      margin-top: 18px;
+    }
+
+    .section h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .text-box {
+      white-space: pre-wrap;
+      line-height: 1.75;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcfe;
+      min-height: 80px;
+      word-break: break-word;
+    }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+
+    .mobile-only {
+      display: none;
+    }
+
+    .mobile-collapse-toggle {
+      display: none;
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        position: static;
+      }
+
+      .topbar-inner {
+        padding: 12px 10px;
+        align-items: stretch;
+      }
+
+      .toolbar {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toolbar > *,
+      .pill,
+      button,
+      select,
+      input {
+        width: 100%;
+        max-width: none;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 10px;
+        gap: 12px;
+      }
+
+      .card {
+        border-radius: 14px;
+      }
+
+      .card-head {
+        padding: 14px;
+      }
+
+      .card-body {
+        padding: 14px;
+      }
+
+      .mobile-collapse-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .mobile-collapse-toggle {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 42px;
+        width: auto;
+        padding: 8px 10px;
+      }
+
+      .mobile-collapsible.collapsed .mobile-collapse-body {
+        display: none;
+      }
+
+      .desktop-page-section,
+      .desktop-page-actions {
+        display: none;
+      }
+
+      .mobile-only {
+        display: block;
+      }
+
+      .chapter-list {
+        max-height: 260px;
+      }
+
+      .chapter-btn {
+        padding: 14px;
+      }
+
+      .page-grid {
+        grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+        max-height: 220px;
+      }
+
+      .page-btn {
+        padding: 10px 6px;
+      }
+
+      .nav-actions {
+        flex-direction: column;
+      }
+
+      .section {
+        margin-top: 14px;
+      }
+
+      .text-box {
+        font-size: 14px;
+        line-height: 1.7;
+        padding: 12px;
+      }
+
+      .page-image {
+        width: 100%;
+        max-height: none;
+        border-radius: 12px;
+      }
+
+      .cap {
+        font-size: 11px;
+      }
+    }
+
+
+    @media (max-width: 1200px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .chapter-list {
+        max-height: 260px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <h1>教材頁面</h1>
+        </div>
+
+        <div class="toolbar">
+          <button type="button" id="backLauncherBtn">回到 Launcher</button>
+          <div class="pill" id="metaInfo">尚未載入</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="card mobile-collapsible" id="materialPanel">
+        <div class="card-head">
+          <div class="mobile-collapse-head">
+            <h2 class="card-title">教材選擇</h2>
+            <button class="mobile-collapse-toggle" type="button" data-target="materialPanel">收合</button>
+          </div>
+        </div>
+        <div class="card-body mobile-collapse-body">
+          <div class="field">
+            <label for="subjectSelect">科目</label>
+            <select id="subjectSelect"></select>
+          </div>
+
+          <div class="field">
+            <label for="dataTypeSelect">格式</label>
+            <select id="dataTypeSelect"></select>
+          </div>
+
+          <div class="nav-actions">
+            <button type="button" class="primary" id="reloadBtn">重新載入</button>
+          </div>
+
+          <div class="info" id="statusBox">載入中…</div>
+
+          <div class="section desktop-page-section">
+            <h3>頁面</h3>
+            <div class="page-grid" id="pageGrid"></div>
+          </div>
+
+          <div class="nav-actions desktop-page-actions">
+            <button type="button" id="prevBtn">上一頁</button>
+            <button type="button" id="nextBtn">下一頁</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card mobile-collapsible" id="chapterPanel">
+        <div class="card-head">
+          <div class="mobile-collapse-head">
+            <h2 class="card-title">章節</h2>
+            <button class="mobile-collapse-toggle" type="button" data-target="chapterPanel">收合</button>
+          </div>
+        </div>
+        <div class="card-body mobile-collapse-body">
+          <div id="chapterList" class="chapter-list"></div>
+        </div>
+      </section>
+
+      <section class="card mobile-only mobile-collapsible" id="mobilePagePanel">
+        <div class="card-head">
+          <div class="mobile-collapse-head">
+            <h2 class="card-title">頁面</h2>
+            <button class="mobile-collapse-toggle" type="button" data-target="mobilePagePanel">收合</button>
+          </div>
+        </div>
+        <div class="card-body mobile-collapse-body">
+          <div class="page-grid" id="mobilePageGrid"></div>
+
+          <div class="nav-actions">
+            <button type="button" id="mobilePrevBtn">上一頁</button>
+            <button type="button" id="mobileNextBtn">下一頁</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2 class="card-title" id="pageTitle">頁面內容</h2>
+        </div>
+        <div class="card-body">
+          <div class="section" style="margin-top:0;">
+            <h3>TEXT</h3>
+            <div id="textArea" class="text-box muted">尚未載入。</div>
+          </div>
+
+          <div class="section">
+            <h3>圖片</h3>
+            <div id="imageArea" class="image-grid"></div>
+          </div>
+
+          <div class="section">
+            <h3>OCR</h3>
+            <div id="ocrArea" class="text-box muted">尚未載入。</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API_BASE = `${window.location.protocol}//${window.location.hostname}:8000`;
+
+    const params = new URLSearchParams(window.location.search);
+
+    const backLauncherBtn = document.getElementById("backLauncherBtn");
+    const metaInfo = document.getElementById("metaInfo");
+
+    const subjectSelect = document.getElementById("subjectSelect");
+    const dataTypeSelect = document.getElementById("dataTypeSelect");
+
+    const chapterList = document.getElementById("chapterList");
+    const pageGrid = document.getElementById("pageGrid");
+    const mobilePageGrid = document.getElementById("mobilePageGrid");
+
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const reloadBtn = document.getElementById("reloadBtn");
+    const statusBox = document.getElementById("statusBox");
+    const mobilePrevBtn = document.getElementById("mobilePrevBtn");
+    const mobileNextBtn = document.getElementById("mobileNextBtn");
+
+    const pageTitle = document.getElementById("pageTitle");
+    const imageArea = document.getElementById("imageArea");
+    const textArea = document.getElementById("textArea");
+    const ocrArea = document.getElementById("ocrArea");
+
+    let materials = [];
+    let pageKeys = [];
+    let currentPage = null;
+    let selectedChapter = "";
+    let selectedDocId = "";
+    let selectedPage = "";
+
+    boot();
+
+    async function boot() {
+      bindEvents();
+      bindMobileCollapseEvents();
+      await loadMaterials();
+      applyUrlParamsToSelectors();
+      renderChapterButtons();
+      await loadPageList();
+      applyUrlParamsToPage();
+      await loadCurrentPage();
+    }
+
+
+    function bindMobileCollapseEvents() {
+      document.querySelectorAll(".mobile-collapse-toggle").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.dataset.target || "";
+          const panel = document.getElementById(targetId);
+          if (!panel) return;
+
+          panel.classList.toggle("collapsed");
+          btn.textContent = panel.classList.contains("collapsed") ? "展開" : "收合";
+        });
+      });
+    }
+
+    function bindEvents() {
+      backLauncherBtn.addEventListener("click", () => {
+        window.location.href = "launcher.html";
+      });
+
+      subjectSelect.addEventListener("change", async () => {
+        renderDataTypeOptions();
+        selectedChapter = "";
+        renderChapterButtons();
+        await loadPageList();
+        await loadCurrentPage();
+      });
+
+      dataTypeSelect.addEventListener("change", async () => {
+        selectedChapter = "";
+        renderChapterButtons();
+        await loadPageList();
+        await loadCurrentPage();
+      });
+
+      reloadBtn.addEventListener("click", async () => {
+        await loadMaterials();
+        renderChapterButtons();
+        await loadPageList();
+        await loadCurrentPage();
+      });
+
+      prevBtn.addEventListener("click", async () => {
+        if (!currentPage || !currentPage.prev) return;
+        selectedDocId = currentPage.prev.doc_id;
+        selectedPage = String(currentPage.prev.page ?? "");
+        await loadCurrentPage();
+      });
+
+      nextBtn.addEventListener("click", async () => {
+        if (!currentPage || !currentPage.next) return;
+        selectedDocId = currentPage.next.doc_id;
+        selectedPage = String(currentPage.next.page ?? "");
+        await loadCurrentPage();
+      });
+
+      if (mobilePrevBtn) {
+        mobilePrevBtn.addEventListener("click", async () => {
+          if (!currentPage || !currentPage.prev) return;
+          selectedDocId = currentPage.prev.doc_id;
+          selectedPage = String(currentPage.prev.page ?? "");
+          await loadCurrentPage();
+        });
+      }
+
+      if (mobileNextBtn) {
+        mobileNextBtn.addEventListener("click", async () => {
+          if (!currentPage || !currentPage.next) return;
+          selectedDocId = currentPage.next.doc_id;
+          selectedPage = String(currentPage.next.page ?? "");
+          await loadCurrentPage();
+        });
+      }
+    }
+
+    async function loadMaterials() {
+      statusBox.textContent = "載入教材清單中…";
+      try {
+        const resp = await fetch(`${API_BASE}/api/material_viewer_sources`);
+        const data = await resp.json();
+        materials = Array.isArray(data.materials) ? data.materials : [];
+
+        if (!materials.length) {
+          statusBox.textContent = "目前沒有教材。";
+          subjectSelect.innerHTML = "";
+          dataTypeSelect.innerHTML = "";
+          chapterList.innerHTML = "";
+          pageGrid.innerHTML = "";
+      if (mobilePageGrid) mobilePageGrid.innerHTML = "";
+          return;
+        }
+
+        renderSubjectOptions();
+        renderDataTypeOptions();
+      } catch (err) {
+        statusBox.textContent = `載入教材清單失敗：${err.message || err}`;
+      }
+    }
+
+    function applyUrlParamsToSelectors() {
+      const subject = params.get("subject") || "";
+      const dataType = params.get("data_type") || "";
+      const chapter = params.get("chapter") || "";
+
+      if (subject && [...subjectSelect.options].some(o => o.value === subject)) {
+        subjectSelect.value = subject;
+        renderDataTypeOptions();
+      }
+
+      if (dataType && [...dataTypeSelect.options].some(o => o.value === dataType)) {
+        dataTypeSelect.value = dataType;
+      }
+
+      const item = getSelectedMaterial();
+      const chapters = item?.chapters || [];
+      if (chapter && chapters.includes(chapter)) {
+        selectedChapter = chapter;
+      }
+    }
+
+    function applyUrlParamsToPage() {
+      const docFromUrl = params.get("doc_id") || "";
+      const pageFromUrl = params.get("page") || "";
+
+      if (docFromUrl || pageFromUrl) {
+        const found = pageKeys.find(p => {
+          return String(p.doc_id || "") === String(docFromUrl || "") &&
+                 String(p.page ?? "") === String(pageFromUrl || "");
+        });
+
+        if (found) {
+          selectedDocId = found.doc_id;
+          selectedPage = String(found.page ?? "");
+        }
+      }
+    }
+
+    function renderSubjectOptions() {
+      const subjects = [...new Set(materials.map(x => x.subject))];
+      subjectSelect.innerHTML = subjects
+        .map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`)
+        .join("");
+    }
+
+    function renderDataTypeOptions() {
+      const subject = subjectSelect.value || "";
+      const types = [...new Set(materials.filter(x => x.subject === subject).map(x => x.data_type))];
+
+      dataTypeSelect.innerHTML = types
+        .map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`)
+        .join("");
+    }
+
+    function renderChapterButtons() {
+      const item = getSelectedMaterial();
+      const chapters = item?.chapters || [];
+
+      if (!selectedChapter || !chapters.includes(selectedChapter)) {
+        selectedChapter = chapters[0] || "";
+      }
+
+      if (!chapters.length) {
+        chapterList.innerHTML = `<div class="muted">沒有章節。</div>`;
+        return;
+      }
+
+      chapterList.innerHTML = chapters.map((ch, idx) => {
+        const active = ch === selectedChapter ? "active" : "";
+        return `
+          <button type="button" class="chapter-btn ${active}" data-chapter="${escapeHtml(ch)}">
+            <span class="chapter-name">${escapeHtml(ch)}</span>
+            <span class="chapter-sub">#${idx + 1}</span>
+          </button>
+        `;
+      }).join("");
+
+      chapterList.querySelectorAll(".chapter-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          selectedChapter = btn.dataset.chapter || "";
+          selectedDocId = "";
+          selectedPage = "";
+          renderChapterButtons();
+          await loadPageList();
+          await loadCurrentPage();
+        });
+      });
+    }
+
+    function renderPageButtons() {
+      if (!pageKeys.length) {
+        pageGrid.innerHTML = `<div class="muted">沒有頁面。</div>`;
+        if (mobilePageGrid) mobilePageGrid.innerHTML = `<div class="muted">沒有頁面。</div>`;
+        return;
+      }
+
+      if (!selectedDocId && !selectedPage) {
+        selectedDocId = pageKeys[0].doc_id || "";
+        selectedPage = String(pageKeys[0].page ?? "");
+      }
+
+      const pageButtonsHtml = pageKeys.map((p, idx) => {
+        const isActive = String(p.doc_id || "") === String(selectedDocId || "") &&
+                         String(p.page ?? "") === String(selectedPage ?? "");
+        const active = isActive ? "active" : "";
+        const hasOcr = p.has_ocr ? "has-ocr" : "";
+        return `
+          <button
+            type="button"
+            class="page-btn ${hasOcr} ${active}"
+            data-doc-id="${escapeHtml(p.doc_id || "")}"
+            data-page="${escapeHtml(String(p.page ?? ""))}"
+            title="${escapeHtml(p.label || "")}"
+          >${escapeHtml(String(p.page ?? idx + 1))}</button>
+        `;
+      }).join("");
+
+      pageGrid.innerHTML = pageButtonsHtml;
+      if (mobilePageGrid) {
+        mobilePageGrid.innerHTML = pageButtonsHtml;
+      }
+
+      [pageGrid, mobilePageGrid].filter(Boolean).forEach((grid) => {
+        grid.querySelectorAll(".page-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            selectedDocId = btn.dataset.docId || "";
+            selectedPage = btn.dataset.page || "";
+            await loadCurrentPage();
+          });
+        });
+      });
+    }
+
+    function getSelectedMaterial() {
+      const subject = subjectSelect.value || "";
+      const dataType = dataTypeSelect.value || "";
+      return materials.find(x => x.subject === subject && x.data_type === dataType) || null;
+    }
+
+    function buildBaseQuery() {
+      return new URLSearchParams({
+        subject: subjectSelect.value || "",
+        data_type: dataTypeSelect.value || "",
+        chapter: selectedChapter || "",
+      });
+    }
+
+    async function loadPageList() {
+      const subject = subjectSelect.value || "";
+      const dataType = dataTypeSelect.value || "";
+      const chapter = selectedChapter || "";
+
+      pageKeys = [];
+      pageGrid.innerHTML = "";
+
+      if (!subject || !dataType || !chapter) {
+        statusBox.textContent = "缺少 subject / data_type / chapter。";
+        return;
+      }
+
+      statusBox.textContent = "載入頁面清單中…";
+
+      try {
+        const qs = new URLSearchParams({ subject, data_type: dataType, chapter });
+        const resp = await fetch(`${API_BASE}/api/material_pages?${qs.toString()}`);
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok) {
+          statusBox.textContent = `載入頁面清單失敗：${JSON.stringify(data, null, 2)}`;
+          return;
+        }
+
+        pageKeys = Array.isArray(data.page_keys) ? data.page_keys : [];
+
+        if (!pageKeys.some(p => String(p.doc_id || "") === String(selectedDocId || "") && String(p.page ?? "") === String(selectedPage ?? ""))) {
+          selectedDocId = pageKeys[0]?.doc_id || "";
+          selectedPage = String(pageKeys[0]?.page ?? "");
+        }
+
+        renderPageButtons();
+        statusBox.textContent = `找到 ${pageKeys.length} 頁`;
+      } catch (err) {
+        statusBox.textContent = `載入頁面清單失敗：${err.message || err}`;
+      }
+    }
+
+    async function loadCurrentPage() {
+      const subject = subjectSelect.value || "";
+      const dataType = dataTypeSelect.value || "";
+      const chapter = selectedChapter || "";
+
+      if (!subject || !dataType || !chapter) {
+        renderEmpty("缺少 subject / data_type / chapter。");
+        return;
+      }
+
+      const qs = new URLSearchParams({
+        subject,
+        data_type: dataType,
+        chapter,
+      });
+
+      if (selectedDocId) qs.set("doc_id", selectedDocId);
+      if (selectedPage !== "") qs.set("page", selectedPage);
+
+      statusBox.textContent = "載入頁面中…";
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/material_page?${qs.toString()}`);
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok) {
+          renderEmpty(`載入頁面失敗：${JSON.stringify(data, null, 2)}`);
+          return;
+        }
+
+        currentPage = data;
+        selectedDocId = data.doc_id || "";
+        selectedPage = String(data.page ?? "");
+
+        renderPage(data);
+        renderPageButtons();
+        updateUrl(data);
+        statusBox.textContent = `已載入 ${data.doc_id} / p${data.page}`;
+      } catch (err) {
+        renderEmpty(`載入頁面失敗：${err.message || err}`);
+      }
+    }
+
+    function renderPage(data) {
+      metaInfo.textContent = `${data.subject} / ${data.data_type} / ${data.chapter} / ${data.doc_id} / p${data.page}`;
+      pageTitle.textContent = `${data.doc_id} / page ${data.page}`;
+
+      prevBtn.disabled = !data.prev;
+      nextBtn.disabled = !data.next;
+      if (mobilePrevBtn) mobilePrevBtn.disabled = !data.prev;
+      if (mobileNextBtn) mobileNextBtn.disabled = !data.next;
+
+      renderImages(data.images || []);
+
+      const text = String(data.text || "").trim();
+      textArea.textContent = text && text !== "這頁是沒有txt的" ? text : "無 TEXT。";
+      textArea.classList.toggle("muted", !(text && text !== "這頁是沒有txt的"));
+
+      const ocr = String(data.ocr || "").trim();
+      ocrArea.textContent = ocr || "無 OCR。";
+      ocrArea.classList.toggle("muted", !ocr);
+    }
+
+    function renderEmpty(message) {
+      currentPage = null;
+      metaInfo.textContent = "尚未載入";
+      pageTitle.textContent = "頁面內容";
+      imageArea.innerHTML = "";
+      textArea.textContent = message;
+      ocrArea.textContent = "";
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      if (mobilePrevBtn) mobilePrevBtn.disabled = true;
+      if (mobileNextBtn) mobileNextBtn.disabled = true;
+      statusBox.textContent = message;
+    }
+
+    function renderImages(images) {
+      const unique = [...new Set((images || []).map(x => String(x || "").trim()).filter(Boolean))];
+
+      if (!unique.length) {
+        imageArea.innerHTML = `<div class="muted">無圖片。</div>`;
+        return;
+      }
+
+      imageArea.innerHTML = unique.map((raw, idx) => `
+        <a class="image-link image-pending" href="#" target="_blank" rel="noopener noreferrer" data-image="${escapeHtml(raw)}">
+          <img class="page-image" src="" alt="${escapeHtml(raw)}" loading="lazy" />
+          <div class="cap">${idx + 1}. ${escapeHtml(raw)}</div>
+        </a>
+      `).join("");
+
+      bindImageResolvers();
+    }
+
+    function bindImageResolvers() {
+      imageArea.querySelectorAll(".image-pending").forEach(async (el) => {
+        const raw = el.dataset.image || "";
+        const url = await resolveImageUrl(raw);
+
+        if (!url) {
+          el.outerHTML = `<div class="info">圖片無法解析：${escapeHtml(raw)}</div>`;
+          return;
+        }
+
+        el.href = url;
+        const img = el.querySelector("img");
+        if (img) img.src = url;
+        el.classList.remove("image-pending");
+      });
+    }
+
+    async function resolveImageUrl(raw) {
+      const s = String(raw || "").trim();
+      if (!s) return "";
+
+      if (s.startsWith("http://") || s.startsWith("https://")) {
+        return s;
+      }
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/resolve_image_url?image=${encodeURIComponent(s)}`);
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok) return "";
+
+        const rawUrl = data.url || data.image_url;
+        if (!rawUrl) return "";
+
+        if (String(rawUrl).startsWith("http://") || String(rawUrl).startsWith("https://")) {
+          return rawUrl;
+        }
+
+        return `${API_BASE}${rawUrl}`;
+      } catch (err) {
+        return "";
+      }
+    }
+
+    function updateUrl(data) {
+      const qs = new URLSearchParams({
+        subject: data.subject || "",
+        data_type: data.data_type || "",
+        chapter: data.chapter || "",
+        doc_id: data.doc_id || "",
+        page: String(data.page ?? ""),
+      });
+
+      const nextUrl = `${window.location.pathname}?${qs.toString()}`;
+      window.history.replaceState(null, "", nextUrl);
+    }
+
+    function escapeHtml(v) {
+      return String(v)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+  </script>
+</body>
+</html>
