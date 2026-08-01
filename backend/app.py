@@ -15,7 +15,7 @@ from backend.routes.search import router as search_router
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = PROJECT_ROOT / "data"
 
-app = FastAPI(title="LLM Project API")
+app = FastAPI(title="Local Material AI Review System API")
 
 app.add_middleware(
     CORSMiddleware,
