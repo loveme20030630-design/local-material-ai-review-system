@@ -780,8 +780,8 @@ def run_qa(
 
     print(f"\n[QA {question}]\n")
 
-    if not ctx:
-        print(_build_compact_fallback_answer(results, question))
+    if not results:
+        print("目前檢索不到符合相關性門檻的教材內容。")
         return
 
     policy = _build_prompt_policy(question)
