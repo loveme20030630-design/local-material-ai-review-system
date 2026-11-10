@@ -214,12 +214,17 @@ def search_topk(
 ) -> list[tuple[float, dict[str, Any], str]]:
     """向量檢索 topK（k 不是關鍵字數）。"""
     qv = encoder.encode(query)
+    MIN_SIMILARITY = 0.60
     scores, ids = index.search(qv, k)
 
     out: list[tuple[float, dict[str, Any], str]] = []
     for idx, score in zip(ids[0], scores[0]):
         if int(idx) < 0:
             continue
+          
+        if float(score) <  MIN_SIMILARITY :
+          continue
+          
         out.append((float(score), pages[int(idx)], texts[int(idx)]))
     return out
 
